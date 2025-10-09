@@ -1,0 +1,9 @@
+numpy
+scipy
+pandas
+matplotlib
+tables>=3.10.2
+seaborn
+scikit-learn>=0.17.1
+imbalanced-learn
+
