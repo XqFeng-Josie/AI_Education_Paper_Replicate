@@ -159,16 +159,16 @@ We evaluated multiple Large Language Models on classroom transcript classificati
 
 | Model(Accuracy) | Student on Task | Teacher on Task | High Uptake | Focusing Question | Student Reasoning |
 |-------|-----------------|-----------------|-------------|-------------------|------------------|
-| **Paper (RoBERTa)** | 90.2% | 86.7% | 76.8% | 85.6% | 86.3% |
-| **Our RoBERTa** | 90.8% | 87.5% | 78.3% | 85.3% | 87.2% |
-| **LLaMA-3.1-8B (Zero-shot)** | 62.2% | 42.0% | 70.5% | 78.4% | 68.03% |
-| **LLaMA-3.1-8B (Few-shot)** | 71.5% | 50.5% | 74.6% | 78.1% | 78.14% |
-| **Llama-3.3-70B-Instruct (Few-shot)** | TBD | TBD | TBD | TBD | TBD |
-| **Llama-3.3-70B-Instruct (Zero-shot)** | TBD | TBD | TBD | TBD | TBD |
-| **Mistral-7B (Zero-shot)** | 73.6% | 78.8% | 73.8% | 55.7% | 61.08% |
-| **Mistral-7B (Few-shot)** | 84.45% | 84.20% | 64.70% | 50.68% | 60.18% |
-| **Qwen2.5-7B (Zero-shot)** | 65.5% | 46.6% | 69.8% | 83.1% | 78.8% |
-| **Qwen2.5-7B (Few-shot)** | 73.42% | 48.47% | 67.59% | 82.92% | 81.6% |
+|   **Paper  (RoBERTa)**   |   90.2%   |   86.7%   |   76.8%   |   85.6%   |   86.3%   |
+|   **Our  RoBERTa**   |   90.8%   |   87.5%   |   78.3%   |   85.3%   |   87.2%   |
+|   **LLaMA-3.1-8B(Zero-shot)**   |   62.2%   |   42.0%   |   70.5%   |   78.4%   |   68.03%   |
+|   **LLaMA-3.1-8B(Few-shot)**   |   71.5%   |   50.5%   |   74.6%   |   78.1%   |   78.14%   |
+|   **Llama-3.3-70B-Instruct(Few-shot)**   |   TBD   |   TBD   |   TBD   |   TBD   |   TBD   |
+|   **Llama-3.3-70B-Instruct(Zero-shot)**   |   TBD   |   TBD   |   TBD   |   TBD   |   TBD   |
+|   **Mistral-7B(Zero-shot)**   |   73.6%   |   78.8%   |   73.8%   |   55.7%   |   61.08%   |
+|   **Mistral-7B(Few-shot)**   |   84.45%   |   84.20%   |   64.70%   |   50.68%   |   60.18%   |
+|   **Qwen2.5-7B(Zero-shot)**   |   65.5%   |   46.6%   |   69.8%   |   83.1%   |   78.8%   |
+|   **Qwen2.5-7B(Few-shot)**   |   73.42%   |   48.47%   |   67.59%   |   82.92%   |   81.6%   ||
 
 Note: TBD means (To Be Determined) and will be updated after running the experiments.
 
