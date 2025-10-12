@@ -30,6 +30,7 @@ warnings.filterwarnings("ignore")
 model_mapping = {
             "llama-3.1-8b-instruct": "/u/xfeng4/.cache/modelscope/hub/models/LLM-Research/Meta-Llama-3.1-8B-Instruct",
             "mistral-7b-instruct-v0.3": "/u/xfeng4/.cache/modelscope/hub/models/mistralai/Mistral-7B-Instruct-v0.3",
+            "llama-3.3-70B-instruct": "meta-llama/Llama-3.3-70B-Instruct",
 }
         
 

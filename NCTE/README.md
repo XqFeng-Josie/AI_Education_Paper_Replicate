@@ -129,10 +129,19 @@ download [Meta-Llama-3-8B-Instruct](https://modelscope.cn/models/LLM-Research/Me
 ```bash
 bash run_LLM.sh
 
+
+
+# echo "Running llama-3.1-8b-instruct on student_reasoning with zero_shot..."
+# python run_llm_classifier.py \
+# --model_name llama-3.1-8b-instruct \
+# --task_name student_reasoning \
+# --mode zero_shot
+
 # 1.using Environment Setup to prepare python running environment
 # 2. result directory is outputs/evaluation
 
 # note: set model_mapping in llm_inference.py, now only support llama/mistral ...
+# e.g. llama-3.1-8b-instruct": "/u/xfeng4/.cache/modelscope/hub/models/LLM-Research/Meta-Llama-3.1-8B-Instruct",
 
 ```
 
@@ -147,16 +156,19 @@ bash run_LLM.sh
 
 We evaluated multiple Large Language Models on classroom transcript classification tasks using both zero-shot and few-shot approaches, and compared with our RoBERTa replication results.
 
-| Model | Student on Task | Teacher on Task | High Uptake | Focusing Question | Student Reasoning |
+| Model(Accuracy) | Student on Task | Teacher on Task | High Uptake | Focusing Question | Student Reasoning |
 |-------|-----------------|-----------------|-------------|-------------------|------------------|
 | **Paper (RoBERTa)** | 90.2% | 86.7% | 76.8% | 85.6% | 86.3% |
 | **Our RoBERTa** | 90.8% | 87.5% | 78.3% | 85.3% | 87.2% |
-| **LLaMA-3.1-8B (Few-shot)** | 71.5% | 50.5% | 74.6% | 78.1% | TBD |
-| **LLaMA-3.1-8B (Zero-shot)** | 62.2% | 42.0% | 70.5% | 78.4% | TBD |
-| **Mistral-7B (Few-shot)** | 84.45% | 84.20% | 64.70% | 50.68% | TBD |
-| **Mistral-7B (Zero-shot)** | 73.6% | 78.8% | 73.8% | 55.7% | TBD |
+| **LLaMA-3.1-8B (Zero-shot)** | 62.2% | 42.0% | 70.5% | 78.4% | 68.03% |
+| **LLaMA-3.1-8B (Few-shot)** | 71.5% | 50.5% | 74.6% | 78.1% | 78.14% |
+| **Llama-3.3-70B-Instruct (Few-shot)** | TBD | TBD | TBD | TBD | TBD |
+| **Llama-3.3-70B-Instruct (Zero-shot)** | TBD | TBD | TBD | TBD | TBD |
+| **Mistral-7B (Zero-shot)** | 73.6% | 78.8% | 73.8% | 55.7% | 61.08% |
+| **Mistral-7B (Few-shot)** | 84.45% | 84.20% | 64.70% | 50.68% | 60.18% |
 
-**Note**: Student Reasoning results are marked as "TBD" (To Be Determined) and will be updated after running the experiments.
+Note: TBD means (To Be Determined) and will be updated after running the experiments.
+
 
 ## Reference
 - Github: https://github.com/ddemszky/classroom-transcript-analysis
