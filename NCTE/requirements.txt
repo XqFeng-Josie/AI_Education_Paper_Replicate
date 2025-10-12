@@ -3,3 +3,10 @@ scikit_learn
 scipy
 simpletransformers
 torch
+transformers>=4.30.0
+accelerate
+matplotlib
+seaborn
+huggingface_hub
+pyyaml
+tqdm

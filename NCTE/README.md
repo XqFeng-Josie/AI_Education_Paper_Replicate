@@ -9,9 +9,9 @@ Replication of: [The NCTE transcripts: A dataset of elementary math classroom tr
 
 | File | Description |
 |------|-------------|
-| `ncte_single_utterances.csv` | A csv file containing all utterances from the transcript dataset. The `OBSID` column represents the unique ID for the transcript, and the `NCTETID` represents the teacher ID, which are mappable to metadata. `comb_idx` represents a unique ID for each utterance (concatenation of and `turn_idx`), which is mappable to turn-level annotations. |
+| `ncte_single_utterances.csv` | A csv file containing all utterances from the transcript dataset. The `OBSID` column represents the unique ID for the transcript, and the `NCTETID` represents the teacher ID, which are mappable to metadata. `comb_idx` represents a unique ID for each utterance (concatenation of `OBSID` and `turn_idx`), which is mappable to turn-level annotations. |
 | `student_reasoning.csv` | Turn-level annotations for `student_reasoning`. The annotations are binary.|
-| `paired_annotations.csv` | Turn-level annotations for `student_on_task`, `teacher_on_task`, `high_uptake`, focu`sing_question, using majority rater labels. The annotation protocol is included under the coding schemes folder. |
+| `paired_annotations.csv` | Turn-level annotations for `student_on_task`, `teacher_on_task`, `high_uptake`, focusing_question, using majority rater labels. The annotation protocol is included under the coding schemes folder. |
 
 **Metadata**:  The transcripts are associated with metadata, including observation scores, value added measures and student questionnaire responses. The metadata and additional documentation are available on [ICPSR](https://www.icpsr.umich.edu/web/ICPSR/studies/36095). You can use the `OBSID` variable and the `NCTETID` variables to map transcript data to the metadata.
 
@@ -115,8 +115,48 @@ Correlation analysis between classroom discourse measures and teaching quality i
 
 *Note: Paper results show coefficient significance levels (+p<0.1, *p<0.05, **p<0.01). Our results show raw coefficients.*
 
-## TODO
- 1. Correct the results of the second experiment...
+## 🤖 LLM Evaluation Framework
+
+### Overview
+This project now includes a comprehensive framework for evaluating Large Language Models (LLaMA, etc.) on classroom transcript classification tasks.
+We are using zero-shot and few-shot mode to evaluate LLM.
+### Model
+
+download [Meta-Llama-3-8B-Instruct](https://modelscope.cn/models/LLM-Research/Meta-Llama-3-8B-Instruct) 、[Llama-3.3-70B-Instruct](https://modelscope.cn/models/LLM-Research/Llama-3.3-70B-Instruct) 、[Mistral-7B-Instruct-v0.3](https://modelscope.cn/models/LLM-Research/Mistral-7B-Instruct-v0.3) to local workdir.
+
+
+### Quick Start
+```bash
+bash run_LLM.sh
+
+# 1.using Environment Setup to prepare python running environment
+# 2. result directory is outputs/evaluation
+
+# note: set model_mapping in llm_inference.py, now only support llama/mistral ...
+
+```
+
+### Configuration
+- **Prompt Templates**: `prompts_config.yaml` - Based on paper Table 3 definitions, task definitions based on original NCTE annotation schemes
+- **Models Supported**: LLaMA, Mistral
+- **Output Format**: JSONL with complete evaluation records
+
+
+
+## 📈 LLM Experimental Results
+
+We evaluated multiple Large Language Models on classroom transcript classification tasks using both zero-shot and few-shot approaches, and compared with our RoBERTa replication results.
+
+| Model | Student on Task | Teacher on Task | High Uptake | Focusing Question | Student Reasoning |
+|-------|-----------------|-----------------|-------------|-------------------|------------------|
+| **Paper (RoBERTa)** | 90.2% | 86.7% | 76.8% | 85.6% | 86.3% |
+| **Our RoBERTa** | 90.8% | 87.5% | 78.3% | 85.3% | 87.2% |
+| **LLaMA-3.1-8B (Few-shot)** | 71.5% | 50.5% | 74.6% | 78.1% | TBD |
+| **LLaMA-3.1-8B (Zero-shot)** | 62.2% | 42.0% | 70.5% | 78.4% | TBD |
+| **Mistral-7B (Few-shot)** | 84.45% | 84.20% | 64.70% | 50.68% | TBD |
+| **Mistral-7B (Zero-shot)** | 73.6% | 78.8% | 73.8% | 55.7% | TBD |
+
+**Note**: Student Reasoning results are marked as "TBD" (To Be Determined) and will be updated after running the experiments.
 
 ## Reference
-https://github.com/ddemszky/classroom-transcript-analysis
+- Github: https://github.com/ddemszky/classroom-transcript-analysis

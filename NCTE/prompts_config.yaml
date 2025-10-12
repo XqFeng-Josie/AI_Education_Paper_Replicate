@@ -1,0 +1,186 @@
+# Prompt Templates Configuration for NCTE Classroom Transcript Analysis
+# Based on Demszky & Hill (2022) "The NCTE transcripts: A dataset of elementary math classroom transcripts"
+# Task definitions aligned with paper Table 3 and annotation schemes
+
+student_on_task:
+  system_prompt: "You are an expert in analyzing elementary mathematics classroom discourse. Your task is to determine whether a student's utterance is on-task or off-task based on the NCTE annotation scheme."
+  instruction: |
+    Analyze the student's utterance and determine if it is on-task (1) or off-task (0).
+
+    STUDENT ON-TASK (1) means the student utterance:
+    - Engages with the mathematical content of the lesson
+    - Makes mathematically relevant contributions
+    - Shows focus on the academic subject matter
+    - Examples: "We both have the same number of blue, and red, and yellow." or "I did three divided by two."
+
+    STUDENT OFF-TASK (0) means the student utterance:
+    - Does not relate to the mathematical content
+    - Is about classroom management or social issues
+    - Represents disengagement from academic content
+    - Is conversational but not academically relevant
+
+    Answer with only 0 or 1.
+  few_shot_prefix: "Here are examples from the NCTE dataset:\n\n"
+  example_template: |
+    Student: {student_text}
+    Classification: {label}
+
+teacher_on_task:
+  system_prompt: "You are an expert in analyzing elementary mathematics teaching practices. Your task is to determine whether a teacher's instruction is academically focused based on the NCTE annotation scheme."
+  instruction: |
+    Analyze the teacher's utterance and determine if it is on-task (1) or off-task (0).
+
+    TEACHER ON-TASK (1) means the teacher utterance:
+    - Focuses on mathematical content and instruction
+    - Provides mathematical guidance and explanations
+    - Maintains academic discourse about math concepts
+    - Examples: "Good, find the range. Find the range. Remember it's the span of the least to the greatest number."
+
+    TEACHER OFF-TASK (0) means the teacher utterance:
+    - Focuses primarily on classroom management
+    - Deals with behavioral or procedural issues
+    - Is social conversation unrelated to math content
+    - Administrative or non-instructional talk
+
+    Answer with only 0 or 1.
+  few_shot_prefix: "Here are examples from the NCTE dataset:\n\n"
+  example_template: |
+    Teacher: {teacher_text}
+    Classification: {label}
+
+high_uptake:
+  system_prompt: "You are an expert in analyzing teacher-student interactions in mathematics classrooms. Your task is to identify high uptake of student ideas based on the NCTE annotation scheme."
+  instruction: |
+    Analyze this student-teacher exchange and determine if the teacher demonstrates high uptake (1) or low uptake (0) of the student's mathematical ideas.
+
+    HIGH UPTAKE (1) means the teacher:
+    - Builds meaningfully on the student's mathematical contribution
+    - Incorporates and extends the student's thinking
+    - References or elaborates on student's mathematical ideas
+    - Creates connections between student input and lesson content
+    - Example: Student says "I think these are Y axis and the X axis" → Teacher responds "They do. Sometimes they refer to them as X and Y axis. It depends on the type of graph."
+
+    LOW UPTAKE (0) means the teacher:
+    - Ignores or minimally acknowledges student ideas
+    - Does not build on student mathematical contributions  
+    - Moves on without incorporating student thinking
+    - Provides only minimal or generic responses
+
+    Answer with only 0 or 1.
+  few_shot_prefix: "Here are examples from the NCTE dataset:\n\n"
+  example_template: |
+    Student: {student_text}
+    Teacher: {teacher_text}
+    Classification: {label}
+
+focusing_question:
+  system_prompt: "You are an expert in analyzing mathematical discourse and questioning practices. Your task is to identify focusing questions based on the NCTE annotation scheme."
+  instruction: |
+    Analyze this classroom exchange and determine if the teacher asks a focusing question (1) or not (0).
+
+    FOCUSING QUESTION (1) - The teacher asks questions that:
+    - Draw attention to mathematical relationships, patterns, or structure
+    - Press for mathematical reasoning and explanations
+    - Focus on understanding mathematical concepts or processes
+    - Encourage deeper mathematical thinking
+    - Examples: "How come you can't put it there?", "Why do you think that works?", "What pattern do you notice?"
+
+    NOT A FOCUSING QUESTION (0) - The teacher asks:
+    - Simple factual recall questions ("What's the answer?")
+    - Yes/no questions without mathematical reasoning
+    - Classroom management questions ("Did you finish?", "Are you ready?")
+    - Procedural questions without conceptual focus
+    - Rhetorical or confirmation questions
+
+    Note: Look at the teacher's utterance. If it contains a focusing question, classify as 1, even if other non-focusing elements are present.
+
+    Answer with only 0 or 1.
+  few_shot_prefix: "Here are examples from the NCTE dataset:\n\n"
+  example_template: |
+    Student: {student_text}
+    Teacher: {teacher_text}
+    Classification: {label}
+
+student_reasoning:
+  system_prompt: "You are an expert in analyzing elementary mathematics classroom discourse. Your task is to identify student reasoning and mathematical explanations based on the NCTE annotation scheme."
+  instruction: |
+    Analyze the student's utterance and determine if it demonstrates mathematical reasoning (1) or not (0).
+
+    STUDENT REASONING (1) means the student utterance:
+    - Provides mathematical explanations for their thinking
+    - Describes mathematical reasoning processes or strategies
+    - Explains how they arrived at an answer or approach
+    - Justifies mathematical claims with reasoning
+    - Makes connections between mathematical concepts
+    - Examples: "Because if you add ninety-eight hundredths and five hundredths, I think it's going to add up to, like, it's almost going to almost add up to a hundred."
+    - Examples: "You can instead drawing [inaudible], you can just draw six boxes."
+    - Examples: "Like they were supposed to drive 1,087 miles to Mr. F's sister's house. So they drove 539 miles. So we're trying to figure out how many miles they need to drive."
+
+    NO STUDENT REASONING (0) means the student utterance:
+    - Simple answers without explanation (e.g., "The answer is 5")
+    - Questions or requests for help
+    - Off-task or social conversation
+    - Procedural statements without reasoning
+    - Short responses that lack substantive mathematical thinking
+    - Examples: "I don't know if this is right." or "What are we supposed to do?"
+
+    Note: Focus on whether the student provides mathematical reasoning, explanation, or describes their thinking process.
+
+    Answer with only 0 or 1.
+  few_shot_prefix: "Here are examples from the NCTE dataset:\n\n"
+  example_template: |
+    Student: {student_text}
+    Classification: {label}
+
+# Global settings
+global_settings:
+  max_few_shot_examples: 10
+  temperature: 0.1
+  max_new_tokens: 10
+  
+  # Different templates for different task types
+  single_text_template: |
+    {system_prompt}
+
+    {instruction}
+
+    {few_shot_examples}
+
+    {text_content}
+
+    Classification:
+  
+  dual_text_template: |
+    {system_prompt}
+
+    {instruction}
+
+    {few_shot_examples}
+
+    Student: {student_text}
+    Teacher: {teacher_text}
+
+    Classification:
+
+# Task-specific configurations
+task_configs:
+  student_on_task:
+    template_type: "single_text"
+    text_field: "student_text"
+    text_label: "Student"
+  
+  teacher_on_task:
+    template_type: "single_text"
+    text_field: "teacher_text"
+    text_label: "Teacher"
+  
+  high_uptake:
+    template_type: "dual_text"
+  
+  focusing_question:
+    template_type: "dual_text"
+  
+  student_reasoning:
+    template_type: "single_text"
+    text_field: "text"
+    text_label: "Student"
