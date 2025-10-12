@@ -55,7 +55,7 @@ jupyter notebook code/data_analysis.ipynb
 
 ### Table 3: Pedagogical Ability Assessment Results(<u>Origin Data Analysis, W/o inference</u>)
 
-Performance comparison between original paper and our replication across 8 evaluation dimensions:
+Note: Only the evaluation metrics are calculated — no inference is included.
 
 **Difference = Our Results - Paper Results**
 
@@ -96,8 +96,10 @@ Check Gemini/Expert results!!!(done, no mistake)
 
 ### Table 3: Pedagogical Ability Assessment Results(<u>W inference</u>)
 
-Performance comparison between original paper and our replication across 8 evaluation dimensions:
-Note: Paper result is manual annotation of llama inference
+Note: 
+- The paper results are based on manual annotations of the official inferences.
+- Our results are generated using the Llama evaluator on inferences from different models.
+
 
 **Difference = Our Results - Paper Results**
 
@@ -105,14 +107,66 @@ Note: Paper result is manual annotation of llama inference
 |-------|:---------------------:|:----------------:|:----------------------:|:------------------:|:-------------:|:---------:|:----------:|:--------------:|
 | **Llama3.1-8B** | | | | | | | | |
 | Paper | 80.21 | 54.69 | 73.96 | 45.31 | 42.71 | 80.73 | 19.79 | 93.75 |
-| Our | 89.32 | 76.82 | 62.5 | 50.52 | 41.93 | 88.02 | 59.64 | 77.86 |
-| Diff | +9.11 | +22.13 | **-11.46** | +5.21 | **-0.78** | +7.29 | +39.85 | **-15.89** |
-<!-- | **Mistral** | | | | | | | | |
+| Our | 85.42 | 61.98 | 50.52 | 5.21 | 11.98 | 80.73 | 19.27 | 56.25 |
+| Diff | +5.21 | +7.29 | **-23.44** | **-40.1** | **-30.73** | 0 | **-0.52** | **-37.5** |
+| **Mistral** | | | | | | | | |
 | Paper | 93.23 | 73.44 | 86.46 | 63.54 | 70.31 | 86.98 | 15.10 | 95.31 |
-| Our | 41.67 | 38.54 | 43.75 | 22.4 | 43.23 | 62.5 | 46.35 | 69.79 |
-| Diff | **-51.56** | **-34.90** | **-42.71** | **-41.14** | **-27.08** | **-24.48** | +31.25 | **-25.52** | -->
+| Our | 80.21 | 44.79 | 36.98 | 3.12 | 14.58 | 80.21 | 81.77 | 47.92 |
+| Diff | **-13.02** | **-28.65** | **-49.48** | **-60.42** | **-55.73** | **-6.77** | +66.67 | **-47.39** |
 
-### Table 6: Pedagogical Ability Assessment Results (AC Analysis)
+### Table 3: Pedagogical Ability Assessment Results (<u>Llama Evaluator on Original Data</u>)
+
+Note: 
+- The paper results are based on manual annotations.
+- Our results are generated using Llama as an automatic evaluator on the same original responses from the dataset.
+
+**Difference = Our Results (Llama Evaluator) - Paper Results (Manual)**
+
+| Tutor | Mistake_Identification | Mistake_Location | Revealing_of_the_Answer | Providing_Guidance | Actionability | Coherence | Tutor_Tone | Human-likeness |
+|-------|:---------------------:|:----------------:|:----------------------:|:------------------:|:-------------:|:---------:|:----------:|:--------------:|
+| **Expert** | | | | | | | | |
+| Paper | 76.04 | 63.02 | 90.62 | 67.19 | 76.04 | 79.17 | 92.19 | 87.50 |
+| Llama Eval | 58.33 | 35.42 | 57.81 | 3.65 | 1.56 | 54.69 | 16.15 | 45.31 |
+| Diff | **-17.71** | **-27.60** | **-32.81** | **-63.54** | **-74.48** | **-24.48** | **-76.04** | **-42.19** |
+| **GPT-4** | | | | | | | | |
+| Paper | 94.27 | 84.38 | 53.12 | 76.04 | 46.35 | 90.17 | 37.50 | 89.62 |
+| Llama Eval | 91.15 | 60.94 | 33.33 | 4.69 | 22.92 | 83.33 | 45.83 | 46.35 |
+| Diff | **-3.12** | **-23.44** | **-19.79** | **-71.35** | **-23.43** | **-6.84** | +8.33 | **-43.27** |
+| **Gemini** | | | | | | | | |
+| Paper | 63.02 | 39.58 | 67.71 | 37.50 | 42.71 | 56.77 | 21.88 | 68.23 |
+| Llama Eval | 77.60 | 40.62 | 88.54 | 3.12 | 9.90 | 75.00 | 46.35 | 47.40 |
+| Diff | +14.58 | +1.04 | +20.83 | **-34.38** | **-32.81** | +18.23 | +24.47 | **-20.83** |
+| **Llama3.1-405B** | | | | | | | | |
+| Paper | 94.27 | 84.38 | 80.73 | 77.08 | 74.48 | 91.67 | 16.15 | 90.62 |
+| Llama Eval | 89.58 | 60.94 | 67.71 | 8.33 | 15.10 | 82.29 | 45.83 | 57.29 |
+| Diff | **-4.69** | **-23.44** | **-13.02** | **-68.75** | **-59.38** | **-9.38** | +29.68 | **-33.33** |
+| **Llama3.1-8B** | | | | | | | | |
+| Paper | 80.21 | 54.69 | 73.96 | 45.31 | 42.71 | 80.73 | 19.79 | 93.75 |
+| Llama Eval | 84.90 | 55.21 | 46.35 | 6.77 | 9.90 | 72.40 | 26.04 | 47.92 |
+| Diff | +4.69 | +0.52 | **-27.61** | **-38.54** | **-32.81** | **-8.33** | +6.25 | **-45.83** |
+| **Mistral** | | | | | | | | |
+| Paper | 93.23 | 73.44 | 86.46 | 63.54 | 70.31 | 86.98 | 15.10 | 95.31 |
+| Llama Eval | 90.62 | 57.81 | 69.79 | 6.77 | 18.75 | 81.77 | 21.88 | 57.81 |
+| Diff | **-2.61** | **-15.63** | **-16.67** | **-56.77** | **-51.56** | **-5.21** | +6.78 | **-37.50** |
+| **Novice** | | | | | | | | |
+| Paper | 43.33 | 16.67 | 80.00 | 11.67 | 1.67 | 50.00 | 90.00 | 35.00 |
+| Llama Eval | 26.42 | 5.66 | 75.47 | 0.00 | 0.00 | 33.96 | 58.49 | 5.66 |
+| Diff | **-16.91** | **-11.01** | **-4.53** | **-11.67** | **-1.67** | **-16.04** | **-31.51** | **-29.34** |
+| **Phi3** | | | | | | | | |
+| Paper | 28.65 | 26.04 | 73.96 | 17.71 | 11.98 | 39.58 | 45.31 | 52.08 |
+| Llama Eval | 40.10 | 26.04 | 44.27 | 2.60 | 3.65 | 49.48 | 42.19 | 25.52 |
+| Diff | +11.45 | **0.00** | **-29.69** | **-15.11** | **-8.33** | +9.90 | **-3.12** | **-26.56** |
+| **Sonnet** | | | | | | | | |
+| Paper | 85.42 | 69.79 | 94.79 | 59.38 | 60.94 | 88.54 | 54.69 | 96.35 |
+| Llama Eval | 73.44 | 30.21 | 86.46 | 3.65 | 3.65 | 88.54 | 39.06 | 63.54 |
+| Diff | **-11.98** | **-39.58** | **-8.33** | **-55.73** | **-57.29** | **0.00** | **-15.63** | **-32.81** |
+
+#### Key Findings
+- Llama evaluator shows significant discrepancies compared to manual annotations, particularly in Providing_Guidance and Actionability dimensions.
+- The evaluator tends to be more conservative (lower scores) in most pedagogical dimensions.
+- Coherence dimension shows relatively more consistency between Llama evaluator and manual annotations.
+
+<!-- ### Table 6: Pedagogical Ability Assessment Results (AC Analysis)
 
 Performance comparison using AC (Accuracy-Consistency) analysis across 8 evaluation dimensions:
 
@@ -155,11 +209,11 @@ Performance comparison using AC (Accuracy-Consistency) analysis across 8 evaluat
 | **Sonnet** | | | | | | | | |
 | Paper | -0.11 | -0.12 | -0.21 | -0.11 | -0.22 | -0.08 | -0.20 | +0.07 |
 | Our | +0.080 | +0.087 | +0.509 | +0.102 | +0.213 | +0.236 | -0.022 | -0.077 |
-| Diff | **+0.190** | **+0.207** | **+0.719** | **+0.212** | **+0.433** | **+0.316** | **+0.178** | **-0.147** |
+| Diff | **+0.190** | **+0.207** | **+0.719** | **+0.212** | **+0.433** | **+0.316** | **+0.178** | **-0.147** | -->
 
-## Summary
+<!-- ## Summary
  - (LLama318)  - The DAMR metric is consistent with the manual results reported in the original paper(EP1).
- - (LLama318) -  (EP2)The AC correlation metric is generally higher, aligning with EP1(Table 3).
+ - (LLama318) -  (EP2)The AC correlation metric is generally higher, aligning with EP1(Table 3). -->
 
 
 

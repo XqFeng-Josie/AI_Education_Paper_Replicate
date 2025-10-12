@@ -3,7 +3,7 @@ scikit_learn
 scipy
 simpletransformers
 torch
-transformers>=4.30.0
+transformers>=4.37.0
 accelerate
 matplotlib
 seaborn

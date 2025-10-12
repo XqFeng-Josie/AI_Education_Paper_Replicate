@@ -122,7 +122,7 @@ This project now includes a comprehensive framework for evaluating Large Languag
 We are using zero-shot and few-shot mode to evaluate LLM.
 ### Model
 
-download [Meta-Llama-3-8B-Instruct](https://modelscope.cn/models/LLM-Research/Meta-Llama-3-8B-Instruct) 、[Llama-3.3-70B-Instruct](https://modelscope.cn/models/LLM-Research/Llama-3.3-70B-Instruct) 、[Mistral-7B-Instruct-v0.3](https://modelscope.cn/models/LLM-Research/Mistral-7B-Instruct-v0.3) to local workdir.
+download [Meta-Llama-3-8B-Instruct](https://modelscope.cn/models/LLM-Research/Meta-Llama-3-8B-Instruct) 、[Llama-3.3-70B-Instruct](https://modelscope.cn/models/LLM-Research/Llama-3.3-70B-Instruct) 、[Mistral-7B-Instruct-v0.3](https://modelscope.cn/models/LLM-Research/Mistral-7B-Instruct-v0.3) 、[Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) to local workdir or use directly from HuggingFace.
 
 
 ### Quick Start
@@ -140,14 +140,15 @@ bash run_LLM.sh
 # 1.using Environment Setup to prepare python running environment
 # 2. result directory is outputs/evaluation
 
-# note: set model_mapping in llm_inference.py, now only support llama/mistral ...
-# e.g. llama-3.1-8b-instruct": "/u/xfeng4/.cache/modelscope/hub/models/LLM-Research/Meta-Llama-3.1-8B-Instruct",
+# note: set model_mapping in llm_inference.py, now support llama/mistral/qwen ...
+# e.g. "llama-3.1-8b-instruct": "/u/xfeng4/.cache/modelscope/hub/models/LLM-Research/Meta-Llama-3.1-8B-Instruct",
+#      "qwen2.5-7b-instruct": "Qwen/Qwen2.5-7B-Instruct",
 
 ```
 
 ### Configuration
 - **Prompt Templates**: `prompts_config.yaml` - Based on paper Table 3 definitions, task definitions based on original NCTE annotation schemes
-- **Models Supported**: LLaMA, Mistral
+- **Models Supported**: LLaMA, Mistral, Qwen
 - **Output Format**: JSONL with complete evaluation records
 
 
@@ -166,6 +167,8 @@ We evaluated multiple Large Language Models on classroom transcript classificati
 | **Llama-3.3-70B-Instruct (Zero-shot)** | TBD | TBD | TBD | TBD | TBD |
 | **Mistral-7B (Zero-shot)** | 73.6% | 78.8% | 73.8% | 55.7% | 61.08% |
 | **Mistral-7B (Few-shot)** | 84.45% | 84.20% | 64.70% | 50.68% | 60.18% |
+| **Qwen2.5-7B (Zero-shot)** | 65.5% | 46.6% | 69.8% | 83.1% | 78.8% |
+| **Qwen2.5-7B (Few-shot)** | 73.42% | 48.47% | 67.59% | 82.92% | 81.6% |
 
 Note: TBD means (To Be Determined) and will be updated after running the experiments.
 

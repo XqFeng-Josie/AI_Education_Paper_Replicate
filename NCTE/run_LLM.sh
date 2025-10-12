@@ -29,6 +29,19 @@ python run_llm_classifier.py \
 --mode few_shot \
 --n_shots 5
 
+echo "Running qwen2.5-7b-instruct with zero_shot..."
+python run_llm_classifier.py \
+--model_name qwen2.5-7b-instruct \
+--task_name all \
+--mode zero_shot
+
+echo "Running qwen2.5-7b-instruct with few_shot..."
+python run_llm_classifier.py \
+--model_name qwen2.5-7b-instruct \
+--task_name all \
+--mode few_shot \
+--n_shots 5
+
 
 # echo "Running llama-3.3-70B-instruct with zero_shot..."
 # python run_llm_classifier.py \
