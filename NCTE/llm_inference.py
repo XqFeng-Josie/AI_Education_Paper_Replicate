@@ -19,13 +19,22 @@ import transformers
 from transformers import AutoModelForCausalLM as HFAutoModelForCausalLM
 from transformers import AutoTokenizer as HFAutoTokenizer
 
+# Try to import ModelScope for Mistral models
+try:
+    from modelscope import AutoModelForCausalLM, AutoTokenizer
+
+    MODELSCOPE_AVAILABLE = True
+except ImportError:
+    MODELSCOPE_AVAILABLE = False
+    AutoModelForCausalLM = None
+    AutoTokenizer = None
 
 warnings.filterwarnings("ignore")
 
 model_mapping = {
     "llama-3.1-8b-instruct": "/u/xfeng4/.cache/modelscope/hub/models/LLM-Research/Meta-Llama-3.1-8B-Instruct",
     "mistral-7b-instruct-v0.3": "/u/xfeng4/.cache/modelscope/hub/models/mistralai/Mistral-7B-Instruct-v0.3",
-    "llama-3.3-70B-instruct": "meta-llama/Llama-3.3-70B-Instruct",
+    "llama-3.3-70b-instruct": "LLM-Research/Llama-3.3-70B-Instruct",
     "qwen2.5-7b-instruct": "Qwen/Qwen2.5-7B-Instruct",
 }
 
@@ -63,6 +72,11 @@ class LLMInference:
             # Check if it's a Qwen model - use official loading method
             elif "qwen" in self.model_name.lower():
                 self._load_qwen_model(model_path)
+            # Check if it's Llama 70B - use reference implementation
+            elif (
+                "70b" in self.model_name.lower() and "llama" in self.model_name.lower()
+            ):
+                self._load_llama_70b_model(model_path)
             else:
                 # Use transformers pipeline for other models (LLaMA)
                 self.pipeline = transformers.pipeline(
@@ -119,6 +133,23 @@ class LLMInference:
 
         self.model.eval()
         print("Qwen model loaded successfully")
+
+    def _load_llama_70b_model(self, model_path: str):
+        """Load Llama 70B model using reference implementation.
+
+        Implementation follows the reference code pattern for Llama-3.3-70B-Instruct.
+        """
+        print(f"Loading Llama 70B model from: {model_path}")
+
+        # Use transformers pipeline following reference code
+        self.pipeline = transformers.pipeline(
+            "text-generation",
+            model=model_path,
+            model_kwargs={"torch_dtype": torch.bfloat16},
+            device_map="auto",
+        )
+
+        print("Llama 70B model loaded successfully")
 
     def _get_model_path(self) -> str:
         """Get the model path or identifier."""
