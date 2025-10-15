@@ -6,28 +6,27 @@ This module handles all LLM inference functionality including:
 - Model loading and initialization
 - Text generation with different backends
 - Classification result extraction
-- Support for various model types (transformers, ModelScope)
+- Support for various model types (transformers, ModelScope, OpenAI API)
 """
 
 import os
-import logging
 import warnings
-from typing import List, Dict, Tuple, Optional, Any, Union
+from typing import List, Dict, Any
 
 import torch
 import transformers
 from transformers import AutoModelForCausalLM as HFAutoModelForCausalLM
 from transformers import AutoTokenizer as HFAutoTokenizer
 
-# Try to import ModelScope for Mistral models
-try:
-    from modelscope import AutoModelForCausalLM, AutoTokenizer
 
-    MODELSCOPE_AVAILABLE = True
+# Try to import OpenAI for API models
+try:
+    from openai import OpenAI
+
+    OPENAI_AVAILABLE = True
 except ImportError:
-    MODELSCOPE_AVAILABLE = False
-    AutoModelForCausalLM = None
-    AutoTokenizer = None
+    OPENAI_AVAILABLE = False
+    OpenAI = None
 
 warnings.filterwarnings("ignore")
 
@@ -36,6 +35,12 @@ model_mapping = {
     "mistral-7b-instruct-v0.3": "/u/xfeng4/.cache/modelscope/hub/models/mistralai/Mistral-7B-Instruct-v0.3",
     "llama-3.3-70b-instruct": "LLM-Research/Llama-3.3-70B-Instruct",
     "qwen2.5-7b-instruct": "Qwen/Qwen2.5-7B-Instruct",
+    # OpenAI models
+    "gpt-4o": "gpt-4o",
+    "gpt-4o-mini": "gpt-4o-mini",
+    "gpt-4-turbo": "gpt-4-turbo",
+    "gpt-4": "gpt-4",
+    "gpt-3.5-turbo": "gpt-3.5-turbo",
 }
 
 
@@ -50,6 +55,15 @@ class LLMInference:
         self.pipeline = None
         self.model = None
         self.tokenizer = None
+        self.openai_client = None
+        self.is_openai_model = False
+
+        # Token usage tracking for API models
+        self.last_token_usage = {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "total_tokens": 0,
+        }
 
         self._load_model()
 
@@ -66,8 +80,11 @@ class LLMInference:
         try:
             model_path = self._get_model_path()
 
+            # Check if it's an OpenAI model
+            if self._is_openai_model(self.model_name):
+                self._load_openai_model(model_path)
             # Check if it's a MistralAI model
-            if "mistral" in self.model_name.lower():
+            elif "mistral" in self.model_name.lower():
                 self._load_mistral_model(model_path)
             # Check if it's a Qwen model - use official loading method
             elif "qwen" in self.model_name.lower():
@@ -93,6 +110,34 @@ class LLMInference:
         except Exception as e:
             print(f"Error loading model {self.model_name}: {str(e)}")
             raise e
+
+    def _is_openai_model(self, model_name: str) -> bool:
+        """Check if the model is an OpenAI API model."""
+        openai_models = ["gpt-4o", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"]
+        return any(model in model_name.lower() for model in openai_models)
+
+    def _load_openai_model(self, model_path: str):
+        """Load OpenAI model using OpenAI API."""
+        if not OPENAI_AVAILABLE:
+            raise ImportError(
+                "OpenAI package is not available. Please install it with: pip install openai"
+            )
+
+        print(f"Initializing OpenAI API client for model: {model_path}")
+
+        # Get API key from environment variable
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "OPENAI_API_KEY environment variable is not set. "
+                "Please set it with your OpenAI API key."
+            )
+
+        # Initialize OpenAI client
+        self.openai_client = OpenAI(api_key=api_key)
+        self.is_openai_model = True
+
+        print(f"OpenAI API client initialized successfully for {model_path}")
 
     def _load_mistral_model(self, model_path: str):
         """Load MistralAI model using ModelScope."""
@@ -161,8 +206,19 @@ class LLMInference:
     ) -> str:
         """Generate response from the model using greedy generation."""
         try:
+            # Reset token usage for non-API models
+            if not (self.is_openai_model and self.openai_client):
+                self.last_token_usage = {
+                    "prompt_tokens": 0,
+                    "completion_tokens": 0,
+                    "total_tokens": 0,
+                }
+
+            # Check if it's an OpenAI API model
+            if self.is_openai_model and self.openai_client:
+                return self._generate_with_openai(prompt, max_new_tokens)
             # Check if we have a direct model loaded (Mistral, Qwen, etc.)
-            if (
+            elif (
                 hasattr(self, "model")
                 and hasattr(self, "tokenizer")
                 and self.model is not None
@@ -201,6 +257,56 @@ class LLMInference:
 
         except Exception as e:
             print(f"Pipeline generation error: {e}")
+            return ""
+
+    def _generate_with_openai(
+        self, prompt: List[Dict[str, str]], max_new_tokens: int
+    ) -> str:
+        """Generate response using OpenAI API with greedy generation.
+
+        Uses the same message format as other LLMs for consistency.
+        Also tracks token usage for cost calculation.
+        """
+        try:
+            model_path = self._get_model_path()
+
+            # Call OpenAI API with chat completion
+            response = self.openai_client.chat.completions.create(
+                model=model_path,
+                messages=prompt,
+                max_tokens=max_new_tokens,
+                temperature=0,  # Greedy generation (deterministic)
+                top_p=1.0,
+                n=1,
+            )
+
+            # Extract token usage information
+            if hasattr(response, "usage") and response.usage:
+                self.last_token_usage = {
+                    "prompt_tokens": response.usage.prompt_tokens,
+                    "completion_tokens": response.usage.completion_tokens,
+                    "total_tokens": response.usage.total_tokens,
+                }
+            else:
+                # Reset if no usage info
+                self.last_token_usage = {
+                    "prompt_tokens": 0,
+                    "completion_tokens": 0,
+                    "total_tokens": 0,
+                }
+
+            # Extract the generated text
+            generated_text = response.choices[0].message.content
+            return generated_text.strip() if generated_text else ""
+
+        except Exception as e:
+            print(f"OpenAI API generation error: {e}")
+            # Reset token usage on error
+            self.last_token_usage = {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+            }
             return ""
 
     def _generate_with_model(
@@ -275,6 +381,10 @@ class LLMInference:
             print(f"Unclear response: '{response}'. Defaulting to 0.")
             return 0
 
+    def get_token_usage(self) -> Dict[str, int]:
+        """Get the last API call's token usage (for OpenAI models)."""
+        return self.last_token_usage.copy()
+
     def get_model_info(self) -> Dict[str, Any]:
         """Get information about the loaded model."""
         return {
@@ -283,7 +393,10 @@ class LLMInference:
             "max_length": self.max_length,
             "has_pipeline": self.pipeline is not None,
             "has_direct_model": self.model is not None,
-            "modelscope_available": MODELSCOPE_AVAILABLE,
+            "is_openai_model": self.is_openai_model,
+            "has_openai_client": self.openai_client is not None,
+            "openai_available": OPENAI_AVAILABLE,
+            "last_token_usage": self.last_token_usage,
         }
 
 
@@ -296,6 +409,7 @@ def test_llm_inference():
         "llama-3.1-8b-instruct",  # Primary model
         "mistral-7b-instruct-v0.3",  # MistralAI model
         "qwen2.5-7b-instruct",  # Qwen model
+        "gpt-4o-mini",  # OpenAI model (if API key is set)
     ]
 
     success = True
@@ -304,7 +418,7 @@ def test_llm_inference():
         print(f"\n📋 Testing {model_name}:")
         try:
             inference = LLMInference(model_name, device="auto")
-            print(f"   ✅ Model loaded successfully")
+            print("   ✅ Model loaded successfully")
 
             # Test message format
             messages = [
@@ -327,6 +441,8 @@ def test_llm_inference():
 
         except Exception as e:
             print(f"   ❌ Test failed: {e}")
+            if "gpt" in model_name.lower():
+                print("   ℹ️  OpenAI API key might not be set or model not available")
             success = False
 
     return success

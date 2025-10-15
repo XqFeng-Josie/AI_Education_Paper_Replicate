@@ -6,10 +6,12 @@ Reproducing paper: [Ouroboros: Early identification of at-risk students without 
 
 
 ## 🚀 Quick Start
-0. Environment setting
+0. Environment Setup
 
    ```
-   python -m venv .venv && pip install -r requirements.txt
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
    ```
 1. Download OULAD CSVs from the dataset page below.
 2. Place CSVs into `ouroboros_OULAD_PaperReplicate/selflearner/data_load/data/` with these names:

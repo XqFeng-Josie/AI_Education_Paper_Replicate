@@ -10,3 +10,4 @@ seaborn
 huggingface_hub
 pyyaml
 tqdm
+openai>=1.0.0
