@@ -79,7 +79,7 @@ Performance comparison between original paper and our replication using 5-fold c
 - **Best Improvements**: Student Reasoning shows the largest improvements (+5.6% precision, +4.4% F1)
 - **Consistent Results**: Most metrics show small positive improvements, indicating successful replication
 
-### Part 2: Regression Analysis Results
+<!-- ### Part 2: Regression Analysis Results
 
 Correlation analysis between classroom discourse measures and teaching quality indicators, comparing our replication with the original paper (Table 5).
 
@@ -113,13 +113,13 @@ Correlation analysis between classroom discourse measures and teaching quality i
 |   Teacher on Task(1_Our)   |       0.326       |            0.136 |    0.36    |     0.132 |     0.241      |         0.144 |    0.224    |      0.119 |    -0.114    |       0.133 |    0.191    |      0.128 |
 |  z_Observations(0_Paper)   |        523        |          nan     |    1557    |   nan     |      1554      |       nan     |    1554     |    nan     |     1554     |     nan     |    1554     |    nan     |  
 
-*Note: Paper results show coefficient significance levels (+p<0.1, *p<0.05, **p<0.01). Our results show raw coefficients.*
+*Note: Paper results show coefficient significance levels (+p<0.1, *p<0.05, **p<0.01). Our results show raw coefficients.* -->
 
 ## 🤖 LLM Evaluation Framework
 
 ### Overview
 This project now includes a comprehensive framework for evaluating Large Language Models (LLaMA, etc.) on classroom transcript classification tasks.
-We are using zero-shot and few-shot mode to evaluate LLM.
+We are using zero-shot and few-shot mode to evaluate LLM.( prompt please see [prompts_config.yaml](prompts_config.yaml))
 ### Model
 
 download [Meta-Llama-3-8B-Instruct](https://modelscope.cn/models/LLM-Research/Meta-Llama-3-8B-Instruct) 、[Llama-3.3-70B-Instruct](https://modelscope.cn/models/LLM-Research/Llama-3.3-70B-Instruct) 、[Mistral-7B-Instruct-v0.3](https://modelscope.cn/models/LLM-Research/Mistral-7B-Instruct-v0.3) 、[Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) to local workdir or use directly from HuggingFace.
@@ -141,7 +141,7 @@ bash run_LLM.sh
 # 2. result directory is outputs/evaluation
 
 # note: set model_mapping in llm_inference.py, now support llama/mistral/qwen ...
-# e.g. "llama-3.1-8b-instruct": "/u/xfeng4/.cache/modelscope/hub/models/LLM-Research/Meta-Llama-3.1-8B-Instruct",
+# e.g. "llama-3.1-8b-instruct": "meta-llama/Meta-Llama-3.1-8B-Instruct",
 #      "qwen2.5-7b-instruct": "Qwen/Qwen2.5-7B-Instruct",
 
 ```
@@ -160,17 +160,19 @@ We evaluated multiple Large Language Models on classroom transcript classificati
 | Model(Accuracy) | Student on Task | Teacher on Task | High Uptake | Focusing Question | Student Reasoning |
 |-------|-----------------|-----------------|-------------|-------------------|------------------|
 |   **Paper  (RoBERTa)**   |   90.2%   |   86.7%   |   76.8%   |   85.6%   |   86.3%   |
-|   **Our  RoBERTa**   |   90.8%   |   87.5%   |   78.3%   |   85.3%   |   87.2%   |
-|   **LLaMA-3.1-8B(Zero-shot)**   |   62.2%   |   42.0%   |   70.5%   |   78.4%   |   68.03%   |
-|   **LLaMA-3.1-8B(Few-shot)**   |   71.5%   |   50.5%   |   74.6%   |   78.1%   |   78.14%   |
-|   **Llama-3.3-70B-Instruct(Few-shot)**   |   TBD   |   TBD   |   TBD   |   TBD   |   TBD   |
-|   **Llama-3.3-70B-Instruct(Zero-shot)**   |   TBD   |   TBD   |   TBD   |   TBD   |   TBD   |
-|   **Mistral-7B(Zero-shot)**   |   73.6%   |   78.8%   |   73.8%   |   55.7%   |   61.08%   |
-|   **Mistral-7B(Few-shot)**   |   84.45%   |   84.20%   |   64.70%   |   50.68%   |   60.18%   |
+|   **Our  (RoBERTa)**   |   90.8%   |   87.5%   |   78.3%   |   85.3%   |   87.2%   |
+|   **LLaMA-3.1-8B(Zero-shot)**   |   62.2%   |   42.0%   |   70.5%   |   78.4%   |   68.0%   |
+|   **LLaMA-3.1-8B(Few-shot)**   |   71.5%   |   50.5%   |   74.6%   |   78.1%   |   78.1%   |
+|   **Llama-3.3-70B-Instruct(Zero-shot)**   |   89.1%   |   80.1%   |   75.6%   |   76.3%   |   69.0%   |
+|   **Llama-3.3-70B-Instruct(Few-shot)**   |   90.2%   |   83.2%   |   78.1%   |   72.3%   |   74.4%   |
+|   **Mistral-7B(Zero-shot)**   |   73.6%   |   78.8%   |   73.8%   |   55.7%   |   61.1%   |
+|   **Mistral-7B(Few-shot)**   |   84.5%   |   84.2%   |   64.7%   |   50.7%   |   60.2%   |
 |   **Qwen2.5-7B(Zero-shot)**   |   65.5%   |   46.6%   |   69.8%   |   83.1%   |   78.8%   |
-|   **Qwen2.5-7B(Few-shot)**   |   73.42%   |   48.47%   |   67.59%   |   82.92%   |   81.6%   ||
+|   **Qwen2.5-7B(Few-shot)**   |   73.4%   |   48.5%   |   67.6%   |   82.9%   |   81.6%   |
+|   **gpt-4o(Zero-shot)**   |   75.7%   |   69.0%   |   75.0%   |   82.3%   |   76.5%   |
+|   **gpt-4o(Few-shot)**   |   82.4%   |   72.6%   |   77.9%   |   82.3%   |   79.2%   |
 
-Note: TBD means (To Be Determined) and will be updated after running the experiments.
+<!-- Note: TBD means (To Be Determined) and will be updated after running the experiments. -->
 
 
 ## Reference

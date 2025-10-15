@@ -31,9 +31,9 @@ except ImportError:
 warnings.filterwarnings("ignore")
 
 model_mapping = {
-    "llama-3.1-8b-instruct": "/u/xfeng4/.cache/modelscope/hub/models/LLM-Research/Meta-Llama-3.1-8B-Instruct",
-    "mistral-7b-instruct-v0.3": "/u/xfeng4/.cache/modelscope/hub/models/mistralai/Mistral-7B-Instruct-v0.3",
-    "llama-3.3-70b-instruct": "LLM-Research/Llama-3.3-70B-Instruct",
+    "llama-3.1-8b-instruct": "meta-llama/Meta-Llama-3.1-8B-Instruct",
+    "mistral-7b-instruct-v0.3": "mistralai/Mistral-7B-Instruct-v0.3",
+    "llama-3.3-70b-instruct": "meta-llama/Llama-3.3-70B-Instruct",
     "qwen2.5-7b-instruct": "Qwen/Qwen2.5-7B-Instruct",
     # OpenAI models
     "gpt-4o": "gpt-4o",
@@ -84,15 +84,13 @@ class LLMInference:
             if self._is_openai_model(self.model_name):
                 self._load_openai_model(model_path)
             # Check if it's a MistralAI model
-            elif "mistral" in self.model_name.lower():
+            elif self.model_name.lower() == "mistral-7b-instruct-v0.3":
                 self._load_mistral_model(model_path)
             # Check if it's a Qwen model - use official loading method
-            elif "qwen" in self.model_name.lower():
+            elif self.model_name.lower() == "qwen2.5-7b-instruct":
                 self._load_qwen_model(model_path)
             # Check if it's Llama 70B - use reference implementation
-            elif (
-                "70b" in self.model_name.lower() and "llama" in self.model_name.lower()
-            ):
+            elif self.model_name.lower() == "llama-3.3-70b-instruct":
                 self._load_llama_70b_model(model_path)
             else:
                 # Use transformers pipeline for other models (LLaMA)
@@ -143,7 +141,6 @@ class LLMInference:
         """Load MistralAI model using ModelScope."""
         print(f"Loading MistralAI model from: {model_path}")
 
-        # Load model and tokenizer using ModelScope
         self.model = AutoModelForCausalLM.from_pretrained(model_path)
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
 
