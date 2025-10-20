@@ -76,11 +76,13 @@ Replication:
 ### Figure 6: PR AUC for day 0 to 11 using Self-learning
 
 - Paper: ![Figure 6 — paper](paper/Figure6_PRAUC_self_learning_paper.png)
+
 - Replication: ![Figure 6 — replicated](paper/Figure6_PRAUC_self_learning_replicated.png)
 
 ### Figure 7: PR AUC for day 0 to 11 trained on legacy data
 
 - Paper: ![Figure 7 — paper](paper/Figure7_PRAUC_legacy_paper.png)
+
 - Replication: ![Figure 7 — replicated](paper/Figure7_PRAUC_legacy_replicated.png)
 
 ### Key Finding

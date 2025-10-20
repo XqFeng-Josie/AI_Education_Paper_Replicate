@@ -1,0 +1,68 @@
+# Multi-Agent System Configuration
+
+agents:
+  academic_advisor:
+    name: "Academic Advisor"
+    role: "Analyze student academic performance and VLE engagement"
+    expertise:
+      - "Assessment submission patterns"
+      - "VLE activity levels"
+      - "Academic progress tracking"
+    weight: 0.25
+    
+  behavioral_analyst:
+    name: "Behavioral Analyst"
+    role: "Analyze student learning behavior patterns"
+    expertise:
+      - "Login frequency and regularity"
+      - "Study session patterns"
+      - "Engagement consistency"
+      - "Disengagement signals"
+    weight: 0.25
+    
+  peer_comparator:
+    name: "Peer Comparison Specialist"
+    role: "Compare student performance with peers"
+    expertise:
+      - "Relative performance analysis"
+      - "Cohort comparison"
+      - "Outlier detection"
+    weight: 0.20
+    
+  time_series_analyst:
+    name: "Time Series Analyst"
+    role: "Analyze temporal trends in student behavior"
+    expertise:
+      - "Trend detection"
+      - "Engagement trajectory"
+      - "Early warning signals"
+      - "Temporal anomaly detection"
+    weight: 0.20
+    
+  decision_maker:
+    name: "Final Decision Maker"
+    role: "Aggregate insights and make final risk assessment"
+    expertise:
+      - "Evidence synthesis"
+      - "Risk level determination"
+      - "Intervention recommendation"
+    weight: 0.10
+
+# Multi-agent coordination
+coordination:
+  # Sequential or parallel processing
+  mode: 'sequential'
+  
+  # Whether decision maker sees other agents' outputs
+  share_intermediate_results: true
+  
+  # Confidence threshold for final decision
+  confidence_threshold: 0.7
+  
+  # Voting mechanism: 'weighted', 'majority', 'consensus'
+  voting_mechanism: 'weighted'
+
+
+
+
+

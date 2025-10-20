@@ -1,0 +1,40 @@
+# Multi-GPU LLM Configuration Example
+# 多GPU并发配置示例
+
+llm:
+  # 使用multi_gpu_llama provider
+  provider: 'multi_gpu_llama'
+  
+  # Multi-GPU Llama配置
+  multi_gpu_llama:
+    # 服务器URL列表（根据你启动的服务器数量和端口调整）
+    server_urls:
+      - 'http://localhost:8000'  # GPU 0
+      - 'http://localhost:8001'  # GPU 1
+      - 'http://localhost:8002'  # GPU 2
+      - 'http://localhost:8003'  # GPU 3
+    
+    # 负载均衡策略
+    # - "round_robin": 轮询分配（推荐，更均衡）
+    # - "random": 随机分配
+    strategy: 'round_robin'
+    
+    # 生成参数
+    temperature: 0.7
+    max_tokens: 2000
+
+# 其他可用的provider配置（供参考）
+  
+  # OpenAI (单服务器)
+  openai:
+    api_key: 'your-api-key'
+    model: 'gpt-4o-mini'
+    temperature: 0.7
+    max_tokens: 2000
+  
+  # 单GPU Llama Server
+  llama_server:
+    server_url: 'http://localhost:8000'
+    temperature: 0.7
+    max_tokens: 2000
+

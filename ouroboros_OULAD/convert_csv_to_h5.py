@@ -3,10 +3,13 @@
 Fix H5 file with proper preprocessing to match the expected data structure.
 """
 
+import io
 import os
 import pandas as pd
 import sys
 from pathlib import Path
+import requests
+import zipfile
 
 # Add the selflearner module to the path
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -23,6 +26,16 @@ DS_STUD_INFO = 'studentInfo'
 DS_STUD_REG = 'studentRegistration'
 DS_STUD_VLE = 'studentVle'
 DS_VLE = 'vle'
+
+
+def download_csv_files():
+    """Download the CSV files from the OULAD dataset"""
+    url = 'https://analyse.kmi.open.ac.uk/open-dataset/download'
+    # anonymisedData.zip
+    # wget "https://analyse.kmi.open.ac.uk/open-dataset/download" -O anonymisedData.zip
+    os.system('wget "https://analyse.kmi.open.ac.uk/open-dataset/download" -O anonymisedData.zip')
+    with zipfile.ZipFile('anonymisedData.zip', 'r') as zip_ref:
+        zip_ref.extractall(os.path.join(SELF_LEARNER_MODULE_PATH, 'data_load', 'data'))
 
 
 def fix_assessments(df_ass):
@@ -153,4 +166,5 @@ def fix_h5_preprocessing():
         print(f"Error during verification: {e}")
 
 if __name__ == "__main__":
+    download_csv_files()
     fix_h5_preprocessing()
