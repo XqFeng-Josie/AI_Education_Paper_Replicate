@@ -74,16 +74,28 @@ Replication:
 | 11 | 0.3633 | 0.2202 | 0.4786 | 0.3939 | 0.2101 | 0.4518 | 0.2726 |
 
 ### Figure 6: PR AUC for day 0 to 11 using Self-learning
-
-- Paper: ![Figure 6 — paper](paper/Figure6_PRAUC_self_learning_paper.png)
-
-- Replication: ![Figure 6 — replicated](paper/Figure6_PRAUC_self_learning_replicated.png)
+<table>
+  <tr>
+    <td align="center"><strong>Paper</strong></td>
+    <td align="center"><strong>Replication</strong></td>
+  </tr>
+  <tr>
+    <td><img src="paper/Figure6_PRAUC_self_learning_paper.png" alt="Figure 6 — paper" width="100%"></td>
+    <td><img src="paper/Figure6_PRAUC_self_learning_replicated.png" alt="Figure 6 — replicated" width="100%"></td>
+  </tr>
+</table>
 
 ### Figure 7: PR AUC for day 0 to 11 trained on legacy data
-
-- Paper: ![Figure 7 — paper](paper/Figure7_PRAUC_legacy_paper.png)
-
-- Replication: ![Figure 7 — replicated](paper/Figure7_PRAUC_legacy_replicated.png)
+<table>
+  <tr>
+    <td align="center"><strong>Paper</strong></td>
+    <td align="center"><strong>Replication</strong></td>
+  </tr>
+  <tr>
+    <td><img src="paper/Figure7_PRAUC_legacy_paper.png" alt="Figure 7 — paper" width="100%"></td>
+    <td><img src="paper/Figure7_PRAUC_legacy_replicated.png" alt="Figure 7 — replicated" width="100%"></td>
+  </tr>
+</table>
 
 ### Key Finding
 
