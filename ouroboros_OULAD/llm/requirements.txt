@@ -1,0 +1,36 @@
+# Additional requirements for using Llama local model
+
+# Transformers and PyTorch
+transformers>=4.36.0
+torch>=2.1.0
+accelerate>=0.25.0
+
+# For server mode
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+requests>=2.31.0
+
+# Optional: for better performance
+# bitsandbytes>=0.41.0  # For quantization
+# flash-attn>=2.3.0     # For faster attention
+
+# LLM Experiments Dependencies
+# For full project setup, use the requirements.txt in the project root
+
+# Core dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+pyyaml>=6.0
+
+# LLM providers
+openai>=1.0.0
+anthropic>=0.18.0
+huggingface_hub>=0.20.0
+
+# Utilities
+tqdm>=4.65.0
+tables>=3.8.0
+
+# Optional: Local Llama support
+# Install requirements_llama.txt if using Llama models
