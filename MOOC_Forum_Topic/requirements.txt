@@ -1,0 +1,29 @@
+# Core dependencies - flexible versions for environment compatibility
+pandas
+openpyxl
+nltk
+spacy
+contractions
+
+# Topic modeling
+sentence-transformers
+bertopic
+umap-learn
+hdbscan
+scikit-learn
+gensim
+
+# RBO for topic diversity (flexible numpy)
+# If rbo fails, we'll implement RBO manually
+rbo
+
+# Visualization
+matplotlib
+seaborn
+plotly
+
+# Jupyter
+jupyter
+ipywidgets
+tqdm
+
