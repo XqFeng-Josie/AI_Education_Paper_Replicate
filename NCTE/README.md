@@ -22,7 +22,9 @@ Replication of: [The NCTE transcripts: A dataset of elementary math classroom tr
 ```bash
 python3 -m venv venv
 source venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
+python -m spacy download en_core_web_sm
 ```
 
 ### 2. Run Training (Exp1)

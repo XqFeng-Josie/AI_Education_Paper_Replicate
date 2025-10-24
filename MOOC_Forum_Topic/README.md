@@ -17,6 +17,8 @@ Identify topics in urgent MOOC forum posts (urgency > 4) using BERTopic topic mo
 
 ### 1. Environment Setup
 ```bash
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 ```
