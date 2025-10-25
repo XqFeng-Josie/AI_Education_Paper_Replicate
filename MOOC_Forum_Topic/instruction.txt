@@ -31,12 +31,20 @@ Step 3 - Data preprocessing
 Firstly, expand contractions (e.g., “can’t” → “cannot”); remove links, numbers, emojis, special characters, punctuation, and extra spaces. They didn’t mention specifically what libraries or packages they used for this task, but you can check for libraries like spaCy. Additionally, commonly used words like “a”, “an”, “the”, and others should be eliminated. Remove stopwords using NLTK 3.8.1 (this version was used in the paper). Lowercase all text; part-of-speech tagging and keep only nouns, adjectives, verbs, and adverbs. Then, the text should be tokenized, splitting the sentences into individual words. Save a cleaned text field for modeling. (expand → clean → stopwords → lowercase → POS → tokenize)
 Step 4 - Sentence Transformer Embedding
 Encode each post with all-MiniLM-L6-v2 (one vector per post). This model is used in the study and performs robustly for semantic similarity tasks on short texts like forum posts. Store vectors for reuse.
-Step 5 - Dimensionality reduction (UMAP)
-Apply UMAP before clustering: metric=“cosine”, minimum distance=0.05, n_components=5, random_state=100, n_neighbors=0.7.
+Step 5 - Dimensionality reduction (UMAP) with Grid Search
+Apply UMAP before clustering: metric="cosine", minimum distance=0.05, n_components=5, random_state=100.
+For n_neighbors: The paper mentions 0.7 but this is likely a typo or misunderstanding as n_neighbors must be an integer.
+We perform GRID SEARCH over n_neighbors=[5,7,10,12,15,18,20,25,30] for each group to find optimal value based on coherence score.
 Step 6 - Topic representation
 Configure BERTopic’s vectorizer as CountVectorizer with ngram_range=(1,3). Keep calculate_probabilities=True and nr_topics=auto. Topic representations use c-TF-IDF (cluster-level TF-IDF).
-Step 7 - Train BERTopic
-Run BERTopic for all four groups that we prepared (Group A: all urgent posts; B: Education, C: Humanities, D: Medicine). Paper obtained 57 automatically generated topics for group A, and their results can be seen below. The other three groups’ results figures can be found in the paper (see Figs 2,3,4,5).
+Step 7 - Train BERTopic with Grid Search
+For each of the four groups (Group A: all urgent posts; B: Education, C: Humanities, D: Medicine):
+1. Perform grid search over n_neighbors values [5,7,10,12,15,18,20,25,30]
+2. For each n_neighbors value, train BERTopic and calculate metrics (n_topics, coherence, IRBO)
+3. Select best n_neighbors based on highest coherence score
+4. Train final model with best n_neighbors
+Paper obtained 57 automatically generated topics for group A. Our grid search will find optimal n_neighbors for each group.
+After grid search, generate trend plots showing n_neighbors vs topics and n_neighbors vs coherence.
 Step 8 - Evaluation (coherence and IRBO)
 Compute topic coherence (C_v) and topic diversity (IRBO) for the learned topics. For coherence, use a library implementation of C_v (e.g., Gensim’s CoherenceModel with c_v) on your cleaned tokens and each topic’s top words; the paper explains C_v conceptually (NPMI + cosine over word co-occurrences) but does not specify an exact top-N—note this and choose a standard value (e.g., N=10) and report it. For IRBO, compare each pair of topics’ top-N word lists using Rank-Biased Overlap (RBO) via a small utility/package (e.g., rbo) and convert the average similarity to a diversity score; again, the paper says IRBO compares “top N words” with weighted ranking but does not give N, so use the same N you used for coherence and report it. Log: number of topics, mean C_v, mean IRBO, and the top-N words per topic. As a reference, the paper’s “All urgent” run reports ~50 topics with C_v ≈ 0.616 and IRBO ≈ 1 (your values may differ with tuning).
 Step 9 - Reporting results

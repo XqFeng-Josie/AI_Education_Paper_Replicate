@@ -9,7 +9,8 @@ import nltk
 from nltk.corpus import stopwords
 import spacy
 from tqdm import tqdm
-
+# print nltk version
+print("nltk version:", nltk.__version__)
 # Download NLTK data
 nltk.download('stopwords', quiet=True)
 nltk.download('punkt', quiet=True)

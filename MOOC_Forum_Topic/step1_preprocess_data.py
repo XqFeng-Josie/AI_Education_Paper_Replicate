@@ -27,8 +27,8 @@ def main():
     print(f"After removing missing text: {len(df)} posts")
     
     # Filter urgent posts (urgency > 4)
-    print(f"\n[3/4] Filtering urgent posts (urgency > 4)...")
-    df_urgent = df[df['urgency'] > 4].copy()
+    print(f"\n[3/4] Filtering urgent posts (urgency >= 4)...")
+    df_urgent = df[df['urgency'] >= 4].copy()
     print(f"Urgent posts: {len(df_urgent)}")
     
     # Create analysis groups
