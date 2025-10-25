@@ -50,32 +50,79 @@ def calculate_coherence_cv_bertopic(texts, topics_list, topic_model, top_n=10):
     Returns:
         float: Coherence score
     """
+    # Tokenize texts
     tokenized_texts = [text.split() for text in texts]
+    
+    # Build dictionary from texts
     dictionary = Dictionary(tokenized_texts)
     
+    # Get all vocabulary from dictionary
+    vocab = set(dictionary.token2id.keys())
+    
+    # Extract topic words
     topic_words = []
     unique_topics = sorted(set(topics_list))
     if -1 in unique_topics:
         unique_topics.remove(-1)
     
     for topic_id in unique_topics:
-        words = topic_model.get_topic(topic_id)
-        if words:
-            topic_words.append([word for word, _ in words[:top_n]])
+        try:
+            words = topic_model.get_topic(topic_id)
+            if words and len(words) > 0:
+                # Extract word strings from tuples
+                word_list = []
+                for item in words[:top_n]:
+                    if isinstance(item, tuple) and len(item) >= 1:
+                        word = item[0]
+                    else:
+                        word = item
+                    
+                    # Ensure it's a string and in vocabulary
+                    if isinstance(word, str) and len(word) > 0 and word in vocab:
+                        word_list.append(word)
+                
+                # Only add if we have at least 2 words (minimum for coherence)
+                if len(word_list) >= 2:
+                    topic_words.append(word_list)
+        except Exception as e:
+            print(f"Warning: Could not get words for topic {topic_id}: {e}")
+            continue
     
-    if not topic_words:
+    # Need at least 2 topics with at least 2 words each
+    if not topic_words or len(topic_words) < 2:
         return 0.0
     
     try:
+        # Use Gensim's CoherenceModel with c_v metric
         coherence_model = CoherenceModel(
             topics=topic_words,
             texts=tokenized_texts,
             dictionary=dictionary,
-            coherence='c_v'
+            coherence='c_v',
+            processes=1  # Avoid multiprocessing issues
         )
-        return coherence_model.get_coherence()
+        coherence_score = coherence_model.get_coherence()
+        
+        # Sanity check
+        if coherence_score is None or np.isnan(coherence_score):
+            return 0.0
+        
+        return coherence_score
+        
     except Exception as e:
         print(f"Warning: Could not calculate coherence: {e}")
+        print(f"  Number of topics: {len(topic_words)}")
+        print(f"  Topic words sample: {topic_words[:2] if len(topic_words) >= 2 else topic_words}")
+        print(f"  Dictionary size: {len(dictionary)}")
+        print(f"  Number of texts: {len(tokenized_texts)}")
+        
+        # Detailed debugging for first failed topic
+        if topic_words:
+            first_topic = topic_words[0]
+            print(f"  First topic words: {first_topic}")
+            in_dict = [word for word in first_topic if word in dictionary.token2id]
+            print(f"  Words in dictionary: {in_dict}")
+        
         return 0.0
 
 

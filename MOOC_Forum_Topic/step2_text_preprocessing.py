@@ -11,6 +11,7 @@ import spacy
 from tqdm import tqdm
 # print nltk version
 print("nltk version:", nltk.__version__)
+# paper version: 3.8.1
 # Download NLTK data
 nltk.download('stopwords', quiet=True)
 nltk.download('punkt', quiet=True)

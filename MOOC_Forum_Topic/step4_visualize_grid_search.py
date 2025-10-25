@@ -99,13 +99,24 @@ def plot_grid_search_results(results):
     plt.close()
     
     # Create individual detailed plots for each group
+    # Load best parameters to add annotation
+    with open('results/best_params_bertopic.json', 'r') as f:
+        best_params = json.load(f)
+    
     for group in groups:
         if group not in results:
             continue
             
         df = results[group]
         fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-        fig.suptitle(f'Grid Search Results - {group} Group', fontsize=16, fontweight='bold')
+        
+        # Get min_cluster_size for this group
+        if isinstance(best_params.get(group), dict):
+            min_cluster_size = best_params[group]['min_cluster_size']
+            fig.suptitle(f'Grid Search Results - {group} Group\n(min_cluster_size={min_cluster_size}, varying n_neighbors)', 
+                        fontsize=16, fontweight='bold')
+        else:
+            fig.suptitle(f'Grid Search Results - {group} Group', fontsize=16, fontweight='bold')
         
         # Subplot 1: n_neighbors vs n_topics
         axes[0, 0].plot(df['n_neighbors'], df['n_topics'], 
@@ -199,7 +210,13 @@ def generate_summary_report(results):
             continue
         
         df = results[group]
-        best_n = best_params.get(group, 15)
+        # Handle both old format (int) and new format (dict)
+        if isinstance(best_params.get(group), dict):
+            best_n = best_params[group]['n_neighbors']
+            best_min_cluster = best_params[group]['min_cluster_size']
+        else:
+            best_n = best_params.get(group, 15)
+            best_min_cluster = 10  # default value
         
         print(f"\n{group} Group:")
         print("-" * 60)
@@ -208,6 +225,7 @@ def generate_summary_report(results):
         best_row = df[df['n_neighbors'] == best_n].iloc[0]
         
         print(f"  Best n_neighbors: {best_n}")
+        print(f"  Best min_cluster_size: {best_min_cluster}")
         print(f"  Number of Topics: {int(best_row['n_topics'])}")
         print(f"  Coherence Score:  {best_row['coherence_cv']:.4f}")
         print(f"  IRBO Score:       {best_row['irbo']:.4f}")
@@ -225,14 +243,23 @@ def generate_summary_report(results):
     print("="*80)
     if 'All' in results:
         df = results['All']
-        best_n = best_params.get('All', 15)
+        # Handle both old format (int) and new format (dict)
+        if isinstance(best_params.get('All'), dict):
+            best_n = best_params['All']['n_neighbors']
+            best_min_cluster = best_params['All']['min_cluster_size']
+            param_str = f"n_neighbors={best_n}, min_cluster_size={best_min_cluster}"
+        else:
+            best_n = best_params.get('All', 15)
+            best_min_cluster = 10
+            param_str = f"n_neighbors={best_n}"
+        
         best_row = df[df['n_neighbors'] == best_n].iloc[0]
         
         print(f"Paper reported:")
         print(f"  Topics: ~50-57")
         print(f"  Coherence: ~0.616")
         print(f"  IRBO: ~1.0")
-        print(f"\nOur result (with n_neighbors={best_n}):")
+        print(f"\nOur result (with {param_str}):")
         print(f"  Topics: {int(best_row['n_topics'])}")
         print(f"  Coherence: {best_row['coherence_cv']:.4f}")
         print(f"  IRBO: {best_row['irbo']:.4f}")
