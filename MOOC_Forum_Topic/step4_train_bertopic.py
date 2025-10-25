@@ -160,14 +160,14 @@ def main():
         
         # Save grid search results for this group
         df = pd.DataFrame(grid_results)
-        df.to_csv(f'results/grid_search_{name.lower()}.csv', index=False)
-        print(f"    Grid search results saved to: results/grid_search_{name.lower()}.csv")
+        df.to_csv(f'results/grid_search_bertopic_{name.lower()}.csv', index=False)
+        print(f"    Grid search results saved to: results/grid_search_bertopic_{name.lower()}.csv")
     
     # Save all grid search results
-    with open('results/grid_search_all.json', 'w') as f:
+    with open('results/grid_search_bertopic_all.json', 'w') as f:
         json.dump(all_grid_results, f, indent=2)
     
-    with open('results/best_params.json', 'w') as f:
+    with open('results/best_params_bertopic.json', 'w') as f:
         json.dump(best_params, f, indent=2)
     
     print("\n" + "="*80)
@@ -182,6 +182,7 @@ def main():
     topic_models = {}
     topics_dict = {}
     probs_dict = {}
+    results = {}
     
     for name, group_df in groups.items():
         print(f"\n  Training final {name} model...")
@@ -200,11 +201,21 @@ def main():
         topics_dict[name] = topics
         probs_dict[name] = probs
         
-        # Print info
+        # Calculate metrics
         n_topics = len(set(topics)) - (1 if -1 in topics else 0)
         n_outliers = sum(1 for t in topics if t == -1)
         coherence = calculate_coherence_cv_bertopic(texts, topics, topic_model, top_n=10)
         irbo = calculate_irbo(topic_model, top_n=10)
+        
+        # Store metrics
+        results[name] = {
+            'n_topics': n_topics,
+            'n_outliers': n_outliers,
+            'coherence_cv': coherence,
+            'irbo': irbo,
+            'n_posts': len(texts),
+            'n_neighbors': best_n
+        }
         
         print(f"    Topics: {n_topics}, Outliers: {n_outliers}")
         print(f"    Coherence: {coherence:.4f}, IRBO: {irbo:.4f}")
@@ -219,7 +230,25 @@ def main():
     with open('models/probs_dict.pkl', 'wb') as f:
         pickle.dump(probs_dict, f)
     
+    # Save results summary
+    results_df = pd.DataFrame(results).T
+    results_df = results_df.round(4)
+    results_df.to_csv('results/bertopic_results_summary.csv')
+    
+    print(f"\n" + "="*80)
+    print("BERTOPIC FINAL RESULTS")
+    print("="*80)
+    print(results_df.to_string())
+    print("\n" + "="*80)
+    print("Paper Reference (All group): Topics ~50-57, Coherence ~0.616")
+    if 'All' in results_df.index:
+        print(f"Our Results (All): Topics {int(results_df.loc['All', 'n_topics'])}, "
+              f"Coherence {results_df.loc['All', 'coherence_cv']:.4f}")
+    print("="*80)
+    
     print(f"\n✓ All models trained and saved with optimized parameters")
+    print(f"  - Models: models/bertopic_*")
+    print(f"  - Results: results/bertopic_results_summary.csv")
 
 if __name__ == '__main__':
     main()

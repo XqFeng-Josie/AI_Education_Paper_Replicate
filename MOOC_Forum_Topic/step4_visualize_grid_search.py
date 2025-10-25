@@ -14,7 +14,7 @@ def load_grid_search_results():
     groups = ['All', 'Education', 'Humanities', 'Medicine']
     
     for group in groups:
-        csv_path = f'results/grid_search_{group.lower()}.csv'
+        csv_path = f'results/grid_search_bertopic_{group.lower()}.csv'
         if os.path.exists(csv_path):
             results[group] = pd.read_csv(csv_path)
         else:
@@ -77,13 +77,16 @@ def plot_grid_search_results(results):
     ax3.legend(fontsize=10)
     ax3.grid(True, alpha=0.3)
     
-    # Plot 4: Topics vs Coherence scatter plot
+    # Plot 4: Topics vs Coherence line plot (sorted by n_topics)
     ax4 = plt.subplot(2, 2, 4)
     for i, group in enumerate(groups):
         if group in results:
-            df = results[group]
-            ax4.scatter(df['n_topics'], df['coherence_cv'], 
-                       s=100, alpha=0.6, label=group, color=colors[i])
+            df = results[group].copy()
+            # Sort by number of topics for smooth line
+            df_sorted = df.sort_values('n_topics')
+            ax4.plot(df_sorted['n_topics'], df_sorted['coherence_cv'], 
+                    marker='D', linewidth=2, markersize=8,
+                    label=group, color=colors[i])
     ax4.set_xlabel('Number of Topics', fontsize=12, fontweight='bold')
     ax4.set_ylabel('Coherence Score (C_v)', fontsize=12, fontweight='bold')
     ax4.set_title('Topics vs Coherence (Quality Trade-off)', fontsize=14, fontweight='bold')
@@ -91,8 +94,8 @@ def plot_grid_search_results(results):
     ax4.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    plt.savefig('results/grid_search_trends.png', dpi=300, bbox_inches='tight')
-    print("✓ Saved: results/grid_search_trends.png")
+    plt.savefig('results/grid_search_bertopic_trends.png', dpi=300, bbox_inches='tight')
+    print("✓ Saved: results/grid_search_bertopic_trends.png")
     plt.close()
     
     # Create individual detailed plots for each group
@@ -176,15 +179,15 @@ def plot_grid_search_results(results):
             table[(best_row_idx, i)].set_facecolor('#ffeb3b')
         
         plt.tight_layout()
-        plt.savefig(f'results/grid_search_{group.lower()}_detailed.png', dpi=300, bbox_inches='tight')
-        print(f"✓ Saved: results/grid_search_{group.lower()}_detailed.png")
+        plt.savefig(f'results/grid_search_bertopic_{group.lower()}_detailed.png', dpi=300, bbox_inches='tight')
+        print(f"✓ Saved: results/grid_search_bertopic_{group.lower()}_detailed.png")
         plt.close()
 
 def generate_summary_report(results):
     """Generate a summary report of the grid search"""
     
     # Load best parameters
-    with open('results/best_params.json', 'r') as f:
+    with open('results/best_params_bertopic.json', 'r') as f:
         best_params = json.load(f)
     
     print("\n" + "="*80)
@@ -241,7 +244,7 @@ def main():
     print("="*80)
     
     # Check if results exist
-    if not os.path.exists('results/best_params.json'):
+    if not os.path.exists('results/best_params_bertopic.json'):
         print("\n❌ Error: Grid search results not found.")
         print("Please run step4_train_bertopic.py first.")
         return
@@ -266,11 +269,11 @@ def main():
     
     print("\n✓ Visualization complete!")
     print("\nGenerated files:")
-    print("  - results/grid_search_trends.png (overview)")
-    print("  - results/grid_search_all_detailed.png")
-    print("  - results/grid_search_education_detailed.png")
-    print("  - results/grid_search_humanities_detailed.png")
-    print("  - results/grid_search_medicine_detailed.png")
+    print("  - results/grid_search_bertopic_trends.png (overview)")
+    print("  - results/grid_search_bertopic_all_detailed.png")
+    print("  - results/grid_search_bertopic_education_detailed.png")
+    print("  - results/grid_search_bertopic_humanities_detailed.png")
+    print("  - results/grid_search_bertopic_medicine_detailed.png")
 
 if __name__ == '__main__':
     main()

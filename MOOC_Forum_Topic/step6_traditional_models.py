@@ -5,6 +5,7 @@ This prepares traditional models data for final comparison in Step 7
 import pickle
 import pandas as pd
 import os
+import json
 from gensim import corpora
 from gensim.models import LdaModel, LsiModel
 from sklearn.decomposition import NMF as SklearnNMF
@@ -142,22 +143,37 @@ def find_best_k(texts, model_type='lda', k_range=range(3, 21), verbose=False):
 # Note: Plotting functions have been moved to step7_final_comparison.py
 
 def main():
+    """
+    Main function to train traditional models
+    Supports: LDA, LSI, NMF
+    Usage: Can be configured via MODEL_LIST variable or command line
+    """
+    import sys
+    
+    # Parse command line arguments or use default
+    if len(sys.argv) > 1:
+        model_list = [m.strip().upper() for m in sys.argv[1].split(',')]
+    else:
+        model_list = ['LDA', 'LSI', 'NMF']  # Default: train all models
+    
     print("="*80)
-    print("Step 6: Train Traditional Models and Compare with BERTopic")
+    print("Step 6: Train Traditional Topic Models")
     print("="*80)
+    print(f"Models to train: {', '.join(model_list)}")
     
     # Load preprocessed data
     print("\n[1/4] Loading preprocessed data...")
     with open('data/groups_preprocessed.pkl', 'rb') as f:
         groups = pickle.load(f)
     
-    # Load BERTopic results
-    print("\n[2/4] Loading BERTopic results...")
-    bertopic_results = pd.read_csv('results/bertopic_results_summary.csv', index_col=0)
+    # Create directories if not exist
+    os.makedirs('models', exist_ok=True)
+    os.makedirs('results', exist_ok=True)
     
     # Process all groups
-    print("\n[3/4] Training traditional models for all groups...")
-    all_group_results = {}
+    print("\n[2/4] Training traditional models for all groups...")
+    all_results = {}  # Store all results
+    best_params = {}  # Store best k for each group-model combination
     
     for group_name, group_df in groups.items():
         print(f"\n{'='*80}")
@@ -173,83 +189,102 @@ def main():
         k_range = range(3, max_k + 1)
         
         # Train traditional models
-        for model_type in ['lda', 'lsi', 'nmf']:
-            print(f"\n{model_type.upper()} Model:")
+        for model_type in model_list:
+            model_name = model_type.upper()
+            print(f"\n{model_name} Model:")
             
             # Enable verbose logging for NMF
-            verbose = (model_type == 'nmf')
+            verbose = True
             
             try:
                 # Find best k
-                best_k, search_results = find_best_k(texts, model_type=model_type, k_range=k_range, verbose=verbose)
+                best_k, search_results = find_best_k(
+                    texts, 
+                    model_type=model_name.lower(), 
+                    k_range=k_range, 
+                    verbose=verbose
+                )
                 
                 # Train final model with best k
-                if model_type == 'lda':
+                if model_name == 'LDA':
                     model, topic_words = train_lda(texts, n_topics=best_k)
-                elif model_type == 'lsi':
+                elif model_name == 'LSI':
                     model, topic_words = train_lsi(texts, n_topics=best_k)
-                elif model_type == 'nmf':
+                elif model_name == 'NMF':
                     model, topic_words = train_nmf(texts, n_topics=best_k)
                 
                 coherence = calculate_coherence_cv_traditional(texts, topic_words)
                 
-                group_results[model_type.upper()] = {
+                # Store results
+                group_results[model_name] = {
                     'n_topics': best_k,
                     'coherence_cv': coherence,
-                    'grid_search': search_results
+                    'n_posts': len(texts)
                 }
                 
-                print(f"  Final: k={best_k}, coherence={coherence:.4f}")
+                # Store best params
+                best_params[f"{group_name}_{model_name}"] = best_k
+                
+                # Save model
+                model_path = f'models/traditional_{model_name.lower()}_{group_name.lower()}.pkl'
+                with open(model_path, 'wb') as f:
+                    pickle.dump({'model': model, 'topic_words': topic_words}, f)
+                
+                # Save grid search results
+                grid_df = pd.DataFrame(search_results)
+                grid_df.to_csv(f'results/grid_search_{model_name.lower()}_{group_name.lower()}.csv', index=False)
+                
+                print(f"  ✓ Best k={best_k}, coherence={coherence:.4f}")
+                print(f"    Saved: {model_path}")
             
             except Exception as e:
-                print(f"  Error training {model_type}: {e}")
+                print(f"  ✗ Error training {model_name}: {e}")
+                import traceback
+                traceback.print_exc()
                 continue
         
-        # Add BERTopic results
-        if group_name in bertopic_results.index:
-            group_results['BERTopic'] = {
-                'n_topics': int(bertopic_results.loc[group_name, 'n_topics']),
-                'coherence_cv': float(bertopic_results.loc[group_name, 'coherence_cv']),
-                'irbo': float(bertopic_results.loc[group_name, 'irbo'])
-            }
-            print(f"\nBERTopic (from previous step):")
-            print(f"  Topics: {group_results['BERTopic']['n_topics']}")
-            print(f"  Coherence: {group_results['BERTopic']['coherence_cv']:.4f}")
-        
-        all_group_results[group_name] = group_results
+        all_results[group_name] = group_results
     
-    # Save results
-    print("\n[4/4] Saving traditional models results...")
+    # Save all results
+    print("\n[3/4] Saving results...")
     
-    os.makedirs('models', exist_ok=True)
+    # Save best parameters
+    with open('results/traditional_best_params.json', 'w') as f:
+        json.dump(best_params, f, indent=2)
+    print("  ✓ Saved: results/traditional_best_params.json")
     
-    # Save detailed results
+    # Save results summary (similar to bertopic_results_summary.csv)
+    summary_data = []
+    for group_name, models in all_results.items():
+        for model_name, metrics in models.items():
+            summary_data.append({
+                'group': group_name,
+                'model': model_name,
+                'n_topics': metrics['n_topics'],
+                'coherence_cv': metrics['coherence_cv'],
+                'n_posts': metrics['n_posts']
+            })
+    
+    summary_df = pd.DataFrame(summary_data)
+    summary_df = summary_df.round(4)
+    summary_df.to_csv('results/traditional_results_summary.csv', index=False)
+    print("  ✓ Saved: results/traditional_results_summary.csv")
+    
+    # Save detailed results (for step7 comparison)
     with open('models/traditional_models_all_groups.pkl', 'wb') as f:
-        pickle.dump(all_group_results, f)
+        pickle.dump(all_results, f)
+    print("  ✓ Saved: models/traditional_models_all_groups.pkl")
     
     # Print summary
-    print("\n" + "="*80)
-    print("TRADITIONAL MODELS TRAINING SUMMARY")
+    print("\n[4/4] Training Summary")
+    print("="*80)
+    print(summary_df.to_string(index=False))
     print("="*80)
     
-    for group_name in groups.keys():
-        print(f"\n{group_name} Group:")
-        print("-" * 60)
-        group_results = all_group_results[group_name]
-        for model_name in ['LDA', 'LSI', 'NMF']:
-            if model_name in group_results:
-                r = group_results[model_name]
-                print(f"  {model_name}: k={r['n_topics']}, coherence={r['coherence_cv']:.4f}")
-    
-    print("\n" + "="*80)
-    print("✓ TRADITIONAL MODELS TRAINING COMPLETE!")
-    print("="*80)
-    print("\nSaved:")
-    print("  - models/traditional_models_all_groups.pkl")
-    print("\nNext step:")
-    print("  - Run step7_final_comparison.py to generate all model comparisons")
-    print("="*80)
+    print(f"\n✓ Traditional models trained successfully!")
+    print(f"  - Models: models/traditional_*")
+    print(f"  - Results: results/traditional_results_summary.csv")
+    print(f"  - Best params: results/traditional_best_params.json")
 
 if __name__ == '__main__':
     main()
-
