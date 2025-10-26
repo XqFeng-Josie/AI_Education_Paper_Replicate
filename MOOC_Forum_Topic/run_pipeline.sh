@@ -23,31 +23,31 @@ fi
 
 # Run pipeline
 echo ""
-echo "[1/8] Data preprocessing..."
+echo "[1/7] Data preprocessing..."
 python step1_preprocess_data.py || exit 1
 
 echo ""
-echo "[2/8] Text cleaning..."
+echo "[2/7] Text cleaning..."
 python step2_text_preprocessing.py || exit 1
 
 echo ""
-echo "[3/8] Generate embeddings..."
+echo "[3/7] Generate embeddings..."
 python step3_generate_embeddings.py || exit 1
 
 echo ""
-echo "[4/8] BERTopic training + Grid search..."
+echo "[4/7] BERTopic training + Grid search..."
 python step4_train_bertopic.py || exit 1
 
 echo ""
-echo "[4b/8] Grid search visualization..."
+echo "[4b/7] Grid search visualization..."
 python step4_visualize_grid_search.py || exit 1
 
 echo ""
-echo "[6/8] Train traditional models..."
+echo "[6/7] Train traditional models..."
 python step6_traditional_models.py "LDA,LSI" || exit 1
 
 echo ""
-echo "[7/8] Model comparison..."
+echo "[7/7] Model comparison..."
 python step7_paper_comparison.py || exit 1
 
 echo ""

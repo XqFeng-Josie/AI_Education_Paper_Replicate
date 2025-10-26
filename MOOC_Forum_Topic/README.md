@@ -130,18 +130,18 @@ Each configuration was evaluated on:
 ### Grid Search Results by Group
 
 #### All Group (6,416 posts)
-![Grid Search All Group](results/grid_search_bertopic_all_detailed.png)
+<img src= results/grid_search_bertopic_all_detailed.png width=80% />
 
 #### Education Group (461 posts)
-![Grid Search Education Group](results/grid_search_bertopic_education_detailed.png)
+<img src= results/grid_search_bertopic_education_detailed.png width=80% />
+
 
 #### Humanities Group (2,476 posts)
-![Grid Search Humanities Group](results/grid_search_bertopic_humanities_detailed.png)
-
+<img src= results/grid_search_bertopic_humanities_detailed.png width=80% />
 
 #### Medicine Group (3,478 posts)
-![Grid Search Medicine Group](results/grid_search_bertopic_medicine_detailed.png)
 
+<img src= results/grid_search_bertopic_medicine_detailed.png width=80% />
 
 
 ### Other UMAP/HDBSCAN Parameters

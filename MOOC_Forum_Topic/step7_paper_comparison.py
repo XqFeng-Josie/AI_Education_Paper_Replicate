@@ -76,8 +76,13 @@ def plot_fig6_all_groups(traditional_results, bertopic_results):
         for model_name in ['LDA', 'LSI', 'NMF']:
             if model_name in group_data and 'grid_search' in group_data[model_name]:
                 grid_results = group_data[model_name]['grid_search']
-                ks = [r['k'] for r in grid_results]
-                coherences = [r['coherence'] for r in grid_results]
+                # Support both old format (k, coherence) and new format (n_topics, coherence_cv)
+                if grid_results and 'n_topics' in grid_results[0]:
+                    ks = [r['n_topics'] for r in grid_results]
+                    coherences = [r['coherence_cv'] for r in grid_results]
+                else:
+                    ks = [r.get('k', r.get('n_topics', 0)) for r in grid_results]
+                    coherences = [r.get('coherence', r.get('coherence_cv', 0)) for r in grid_results]
                 all_ks.extend(ks)
                 
                 marker = 'o' if model_name == 'LDA' else ('s' if model_name == 'LSI' else '^')

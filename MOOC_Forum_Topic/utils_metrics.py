@@ -200,3 +200,43 @@ def calculate_irbo(topic_model, top_n=10, p=0.9):
     
     return irbo
 
+
+def calculate_irbo_traditional(topic_words, top_n=10, p=0.9):
+    """
+    Calculate IRBO (Inverted Rank-Biased Overlap) for traditional models
+    
+    Args:
+        topic_words: List of lists of topic words (each inner list is top words for a topic)
+        top_n: Number of top words to use (default: 10)
+        p: RBO weight parameter (default: 0.9)
+        
+    Returns:
+        float: IRBO score (1 - mean RBO similarity)
+    """
+    if not topic_words or len(topic_words) < 2:
+        return 1.0
+    
+    # Ensure we only use top_n words from each topic
+    topic_words_lists = []
+    for words in topic_words:
+        if words and len(words) > 0:
+            topic_words_lists.append(words[:top_n])
+    
+    if len(topic_words_lists) < 2:
+        return 1.0
+    
+    # Calculate RBO similarity for all pairs of topics
+    similarities = []
+    for list1, list2 in combinations(topic_words_lists, 2):
+        sim = rbo_score(list1, list2, p=p)
+        similarities.append(sim)
+    
+    if not similarities:
+        return 1.0
+    
+    # IRBO = 1 - mean similarity (higher IRBO = more diverse topics)
+    mean_similarity = np.mean(similarities)
+    irbo = 1 - mean_similarity
+    
+    return irbo
+
