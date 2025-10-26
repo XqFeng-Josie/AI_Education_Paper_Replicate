@@ -280,9 +280,9 @@ def main():
         group_results = all_results[group_name]
         
         # Determine k_range based on group size
-        max_k = min(30, len(texts) // 50)  # Reasonable upper limit
-        max_k = max(10, max_k)  # At least 10
-        k_range = range(3, max_k + 1)
+        # max_k = min(30, len(texts) // 50)  # Reasonable upper limit
+        # max_k = max(10, max_k)  # At least 10
+        k_range = range(3, 15)
         
         # Train traditional models
         for model_type in model_list:

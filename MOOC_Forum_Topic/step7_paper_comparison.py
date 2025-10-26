@@ -63,6 +63,15 @@ def plot_fig6_all_groups(traditional_results, bertopic_results):
         'BERTopic': '#212121' # Black
     }
     
+    # Load BERTopic grid search results
+    bertopic_grid_results = {}
+    for group_name in groups:
+        csv_path = f'results/grid_search_bertopic_{group_name.lower()}.csv'
+        if os.path.exists(csv_path):
+            bertopic_grid_results[group_name] = pd.read_csv(csv_path)
+        else:
+            print(f"  Warning: BERTopic grid search file not found: {csv_path}")
+    
     for idx, group_name in enumerate(groups):
         ax = axes[idx]
         
@@ -94,24 +103,31 @@ def plot_fig6_all_groups(traditional_results, bertopic_results):
                        markersize=5,
                        markevery=max(1, len(ks)//10))
         
-        # Add BERTopic
-        if group_name in bertopic_results.index:
-            bertopic_topics = int(bertopic_results.loc[group_name, 'n_topics'])
-            bertopic_coh = float(bertopic_results.loc[group_name, 'coherence_cv'])
+        # Add BERTopic grid search trend
+        if group_name in bertopic_grid_results:
+            bertopic_df = bertopic_grid_results[group_name]
+            # Sort by n_topics for proper line plotting
+            bertopic_df = bertopic_df.sort_values('n_topics')
             
-            if all_ks:
-                x_min, x_max = min(all_ks), max(all_ks)
-                # BERTopic as horizontal line extending to its topic count
-                x_range = range(x_min, min(bertopic_topics + 5, x_max))
-                y_values = [bertopic_coh] * len(x_range)
+            bertopic_topics = bertopic_df['n_topics'].tolist()
+            bertopic_coherences = bertopic_df['coherence_cv'].tolist()
+            
+            if bertopic_topics and bertopic_coherences:
+                all_ks.extend(bertopic_topics)
                 
-                ax.plot(x_range, y_values,
+                ax.plot(bertopic_topics, bertopic_coherences,
                        color=colors['BERTopic'],
                        linewidth=2.5,
                        label='BERTopic_Model',
+                       marker='D',  # Diamond marker
+                       markersize=5,
+                       markevery=max(1, len(bertopic_topics)//10),
                        linestyle='-')
-                
-                ax.set_xlim(x_min - 2, x_max + 2)
+        
+        # Set x-axis limits
+        if all_ks:
+            x_min, x_max = min(all_ks), max(all_ks)
+            ax.set_xlim(x_min - 2, x_max + 2)
         
         ax.set_xlabel('Num Topics', fontsize=12)
         ax.set_ylabel('Coherence score', fontsize=12)
@@ -175,7 +191,8 @@ def create_comparison_tables(paper_data, traditional_results, bertopic_results):
                     data = traditional_results[group_name][model_name]
                     row['Our_Topics'] = data['n_topics']
                     row['Our_Coherence'] = round(data['coherence_cv'], 3)
-                    row['Our_IRBO'] = '-'  # Traditional models don't have IRBO in our implementation
+                    # Traditional models now compute IRBO
+                    row['Our_IRBO'] = round(data.get('irbo', 1.0), 3) if data.get('irbo') is not None else '-'
                 else:
                     row['Our_Topics'] = '-'
                     row['Our_Coherence'] = '-'

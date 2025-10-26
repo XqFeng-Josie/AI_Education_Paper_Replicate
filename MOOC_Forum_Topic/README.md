@@ -50,37 +50,37 @@ python step6_traditional_models.py "LDA,LSI"  # Train only LDA and LSI
 
 #### All Group Comparison
 
-| Model | Paper |  | Our Results |  | Difference |
-|-------|-------|-------|-------------|-------|------------|
-| | Topics | Coherence | Topics | Coherence | ΔCoherence |
-| **LDA** | 6 | 0.542 | 11 | 0.535 | -0.007 (-1.3%) |
-| **LSI** | 8 | 0.459 | 7 | 0.463 | +0.004 (+0.9%) |
-| **NMF** | 6 | 0.660 | - | - | - |
-| **BERTopic** | 50 | 0.616 | 65 | **0.681** | **+0.065 (+10.5%)** ✅ |
+| Model | Paper |  |  | Our Results |  |  | Difference |  |
+|-------|-------|-------|-------|-------------|-------|-------|------------|------------|
+| | Topics | Coherence | IRBO | Topics | Coherence | IRBO | ΔCoherence | ΔIRBO |
+| **LDA** | 6 | 0.542 | 0.974 | 11 | 0.535 | 0.991 | -0.007 (-1.3%) | +0.017 |
+| **LSI** | 8 | 0.459 | 0.914 | 7 | 0.463 | 0.859 | +0.004 (+0.9%) | -0.055 |
+| **NMF** | 6 | 0.660 | 1.000 | 5 | 0.691 | 0.999 | **+0.031 (+4.7%)** ✅ | -0.001 |
+| **BERTopic** | 50 | 0.616 | 1.000 | 65 | **0.681** | 0.999 | **+0.065 (+10.5%)** ✅ | -0.001 |
 
 **BERTopic Optimal Parameters (All)**: `n_neighbors=15, min_cluster_size=5`
 
 #### Education Group Comparison
 
-| Model | Paper |  | Our Results |  | Difference |
-|-------|-------|-------|-------------|-------|------------|
-| | Topics | Coherence | Topics | Coherence | ΔCoherence |
-| **LDA** | 10 | 0.363 | 6 | 0.465 | **+0.102 (+28.1%)** ✅ |
-| **LSI** | 4 | 0.517 | 3 | 0.557 | +0.040 (+7.7%) ✅ |
-| **NMF** | 4 | 0.620 | - | - | - |
-| **BERTopic** | 10 | 0.638 | 6 | **0.634** | **-0.004 (-0.6%)** ≈ |
+| Model | Paper |  |  | Our Results |  |  | Difference |  |
+|-------|-------|-------|-------|-------------|-------|-------|------------|------------|
+| | Topics | Coherence | IRBO | Topics | Coherence | IRBO | ΔCoherence | ΔIRBO |
+| **LDA** | 10 | 0.363 | 0.724 | 6 | 0.465 | 0.819 | **+0.102 (+28.1%)** ✅ | +0.095 |
+| **LSI** | 4 | 0.517 | 0.755 | 3 | 0.557 | 0.825 | **+0.040 (+7.7%)** ✅ | +0.070 |
+| **NMF** | 4 | 0.620 | 0.976 | 3 | 0.579 | 0.995 | -0.041 (-6.6%) | +0.019 |
+| **BERTopic** | 10 | 0.638 | 0.980 | 6 | **0.634** | 0.978 | **-0.004 (-0.6%)** ≈ | -0.002 |
 
 **BERTopic Optimal Parameters (Education)**: `n_neighbors=12, min_cluster_size=5`
 
 #### Humanities Group Comparison
 
-| Model | Paper |  | Our Results |  | Difference |
-|-------|-------|-------|-------------|-------|------------|
-| | Topics | Coherence | Topics | Coherence | ΔCoherence |
-| **LDA** | 18 | 0.455 | 5 | 0.564 | **+0.109 (+24.0%)** ✅ |
-| **LSI** | 6 | 0.455 | 8 | 0.444 | -0.011 (-2.4%) |
-| **NMF** | 8 | 0.658 | - | - | - |
-| **BERTopic** | 17 | 0.689 | 65 | 0.641 | -0.048 (-6.9%) |
+| Model | Paper |  |  | Our Results |  |  | Difference |  |
+|-------|-------|-------|-------|-------------|-------|-------|------------|------------|
+| | Topics | Coherence | IRBO | Topics | Coherence | IRBO | ΔCoherence | ΔIRBO |
+| **LDA** | 18 | 0.455 | 0.972 | 5 | 0.564 | 0.991 | **+0.109 (+24.0%)** ✅ | +0.019 |
+| **LSI** | 6 | 0.455 | 0.850 | 8 | 0.444 | 0.843 | -0.011 (-2.4%) | -0.007 |
+| **NMF** | 8 | 0.658 | 0.967 | 6 | 0.704 | 0.998 | **+0.046 (+7.0%)** ✅ | +0.031 |
+| **BERTopic** | 17 | 0.689 | 0.990 | 65 | 0.641 | 0.998 | -0.048 (-6.9%) | +0.008 |
 
 **BERTopic Optimal Parameters (Humanities)**: `n_neighbors=18, min_cluster_size=5`
 
@@ -88,13 +88,13 @@ python step6_traditional_models.py "LDA,LSI"  # Train only LDA and LSI
 
 #### Medicine Group Comparison
 
-| Model | Paper |  | Our Results |  | Difference |
-|-------|-------|-------|-------------|-------|------------|
-| | Topics | Coherence | Topics | Coherence | ΔCoherence |
-| **LDA** | 2 | 0.517 | 4 | 0.599 | **+0.082 (+15.9%)** ✅ |
-| **LSI** | 6 | 0.499 | 3 | 0.405 | -0.094 (-18.8%) |
-| **NMF** | 6 | 0.755 | - | - | - |
-| **BERTopic** | 37 | 0.604 | 60 | **0.687** | **+0.083 (+13.7%)** ✅ |
+| Model | Paper |  |  | Our Results |  |  | Difference |  |
+|-------|-------|-------|-------|-------------|-------|-------|------------|------------|
+| | Topics | Coherence | IRBO | Topics | Coherence | IRBO | ΔCoherence | ΔIRBO |
+| **LDA** | 2 | 0.517 | 1.000 | 4 | 0.599 | 0.963 | **+0.082 (+15.9%)** ✅ | -0.037 |
+| **LSI** | 6 | 0.499 | 0.427 | 3 | 0.406 | 0.641 | -0.093 (-18.6%) | +0.214 |
+| **NMF** | 6 | 0.755 | 1.000 | 4 | 0.693 | 0.998 | -0.062 (-8.2%) | -0.002 |
+| **BERTopic** | 37 | 0.604 | 1.000 | 60 | **0.687** | 0.998 | **+0.083 (+13.7%)** ✅ | -0.002 |
 
 **BERTopic Optimal Parameters (Medicine)**: `n_neighbors=30, min_cluster_size=5`
 
@@ -152,7 +152,6 @@ Based on the paper:
 - **Vectorizer**: `CountVectorizer(ngram_range=(1,3))`
 
 ---
-
   
 ## 📖 Reference
 Khodeir, N., & Elghannam, F. (2024). Efficient topic identification for urgent MOOC Forum posts using BERTopic and traditional topic modeling techniques. *Education and Information Technologies*. Springer.
