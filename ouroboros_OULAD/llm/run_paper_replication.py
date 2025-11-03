@@ -458,7 +458,7 @@ def run_paper_replication_experiments(args):
     logger.info("="*70)
     
     # Load configuration
-    config_path = args.llm_config or Path(__file__).parent.parent / 'config' / 'llm_config.yaml'
+    config_path = args.llm_config or Path(__file__).parent.parent / 'llm' / 'config' / 'llm_config.yaml'
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
     
@@ -470,7 +470,7 @@ def run_paper_replication_experiments(args):
     )
     
     # Initialize multi-agent system
-    agent_config_path = args.agent_config or Path(__file__).parent.parent / 'config' / 'agent_config.yaml'
+    agent_config_path = args.agent_config or Path(__file__).parent.parent / 'llm' / 'config' / 'agent_config.yaml'
     multi_agent_system = MultiAgentSystem(
         llm_wrapper=llm_wrapper,
         config_path=agent_config_path
@@ -653,9 +653,9 @@ Examples:
     
     # Configuration files
     parser.add_argument('--llm_config', type=str, default=None,
-                       help='Path to LLM configuration file (default: config/llm_config.yaml)')
+                       help='Path to LLM configuration file (default: llm/config/llm_config.yaml)')
     parser.add_argument('--agent_config', type=str, default=None,
-                       help='Path to agent configuration file (default: config/agent_config.yaml)')
+                       help='Path to agent configuration file (default: llm/config/agent_config.yaml)')
     
     # Output
     parser.add_argument('--output_dir', type=str, 

@@ -9,3 +9,6 @@
 
 3. Replication of: [Unifying AI Tutor Evaluation: An Evaluation Taxonomy for Pedagogical Ability Assessment of LLM-Powered AI Tutors](https://arxiv.org/pdf/2412.09416)  
     please see [Unifying_AI_Tutor_Evaluation](Unifying_AI_Tutor_Evaluation/README.md)
+
+4. Replication of: [Efficient topic identification for urgent MOOC Forum posts using BERTopic and traditional topic modeling techniques. Education and Information Technologies](https://link.springer.com/content/pdf/10.1007/s10639-024-13003-4.pdf)  
+    please see [MOOC_Forum_Topic](MOOC_Forum_Topic/README.md)

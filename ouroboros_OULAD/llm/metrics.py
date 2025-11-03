@@ -25,10 +25,10 @@ def convert_risk_level_to_binary(risk_level: str) -> int:
     Convert risk level string to binary prediction
     
     Following traditional ML convention (y = 1 - submitted):
-    - 1 = at-risk (will NOT submit)
-    - 0 = not at-risk (will submit)
+    - 1 = at-risk (will NOT submit) -> "Risk"
+    - 0 = not at-risk (will submit) -> "No Risk"
     """
-    if risk_level in ["High Risk", "high", "High"]:
+    if risk_level in ["Risk", "risk", "At Risk", "At-Risk", "at-risk"]:
         return 1  # At-risk (will NOT submit)
     else:
         return 0  # Not at-risk (will submit)
@@ -80,7 +80,7 @@ def extract_predictions_and_labels(results: List[Dict[str, Any]],
         final_decision = result.get('final_decision', {})
         
         if use_risk_level:
-            risk_level = final_decision.get('final_risk_level', 'Medium Risk')
+            risk_level = final_decision.get('final_risk_level', 'No Risk')
             pred = convert_risk_level_to_binary(risk_level)
         else:
             risk_score = final_decision.get('aggregated_risk_score', 5.0)

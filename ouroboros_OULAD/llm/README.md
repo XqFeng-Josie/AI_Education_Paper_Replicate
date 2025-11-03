@@ -138,7 +138,7 @@ llm/
 ```json
 {
   "final_decision": {
-    "final_risk_level": "High Risk",
+    "final_risk_level": "Risk",
     "risk_factors": [
       "Extremely low engagement (only 5 active days in 45 days)",
       "No activity in the last 15 days",

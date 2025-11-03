@@ -24,9 +24,8 @@ SINGLE_CLASSIFIER_USER_PROMPT = """Analyze the following student profile and pre
 Based on this information, please provide:
 
 1. **Risk Assessment**: Classify the student as one of:
-   - "High Risk": Strong indicators of disengagement or likelihood of dropout
-   - "Medium Risk": Some concerning patterns but not definitive
-   - "Low Risk": Good engagement and on-track behavior
+   - "Risk": Student is at risk of not submitting the assessment (indicators of disengagement or dropout likelihood)
+   - "No Risk": Student is not at risk, will likely submit the assessment (good engagement and on-track behavior)
 
 2. **Key Risk Factors**: List 3-5 specific factors that support your assessment
 
@@ -41,7 +40,7 @@ Your response must start with {{ and end with }}.
 
 Required JSON format:
 {{
-    "risk_level": "High Risk" | "Medium Risk" | "Low Risk",
+    "risk_level": "Risk" | "No Risk",
     "risk_factors": ["factor1", "factor2", ...],
     "evidence": ["evidence1", "evidence2", ...],
     "confidence": "Low" | "Medium" | "High",
@@ -230,7 +229,9 @@ Time Series Analyst Assessment:
 
 Based on all evidence, provide:
 
-1. **Final Risk Assessment**: High Risk / Medium Risk / Low Risk
+1. **Final Risk Assessment**: Risk / No Risk
+   - "Risk": Student is at risk of not submitting the assessment
+   - "No Risk": Student is not at risk, will likely submit the assessment
 2. **Synthesis**: How do the different analyses align or conflict?
 3. **Key Determining Factors**: What factors most influenced your decision?
 4. **Confidence**: Your confidence in this assessment
@@ -241,7 +242,7 @@ Your entire response must be a single valid JSON object starting with {{ and end
 
 Required JSON format:
 {{
-    "final_risk_level": "High Risk" | "Medium Risk" | "Low Risk",
+    "final_risk_level": "Risk" | "No Risk",
     "synthesis": "integrated analysis",
     "key_factors": ["factor1", "factor2", ...],
     "agent_agreement": "high" | "moderate" | "low",
@@ -258,8 +259,8 @@ Required JSON format:
 # Few-Shot Learning Prompts
 # ============================================================================
 
-FEW_SHOT_EXAMPLES_HIGH_RISK = """
-**Example 1: High Risk Student**
+FEW_SHOT_EXAMPLES_RISK = """
+**Example 1: At-Risk Student**
 
 Student Profile:
 - Days into Course: 45
@@ -270,12 +271,12 @@ Student Profile:
 - Longest Study Streak: 2 days
 - Compared to Peers: Bottom 5% in activity
 
-**Assessment: High Risk**
-**Reasoning**: Severely disengaged with only 11% engagement rate and 15 days since last login. Activity level is in the bottom 5% of the cohort. Minimal study consistency with longest streak of only 2 days. Strong indicators of dropout risk.
+**Assessment: Risk**
+**Reasoning**: Severely disengaged with only 11% engagement rate and 15 days since last login. Activity level is in the bottom 5% of the cohort. Minimal study consistency with longest streak of only 2 days. Strong indicators that student will not submit the assessment.
 """
 
-FEW_SHOT_EXAMPLES_LOW_RISK = """
-**Example 2: Low Risk Student**
+FEW_SHOT_EXAMPLES_NO_RISK = """
+**Example 2: Not At-Risk Student**
 
 Student Profile:
 - Days into Course: 45
@@ -286,25 +287,8 @@ Student Profile:
 - Longest Study Streak: 15 days
 - Compared to Peers: Top 15% in activity
 
-**Assessment: Low Risk**
-**Reasoning**: Highly engaged with 93% engagement rate and consistent daily activity. Currently active with login today. Strong study consistency with 15-day streak. Performance in top 15% of cohort. Clear indicators of student success.
-"""
-
-FEW_SHOT_EXAMPLES_MEDIUM_RISK = """
-**Example 3: Medium Risk Student**
-
-Student Profile:
-- Days into Course: 45
-- Total VLE Interactions: 320
-- Active Days: 18 out of 45
-- Engagement Rate: 40%
-- Days Since Last Login: 3
-- Longest Study Streak: 5 days
-- Engagement Trend: Declining over last 2 weeks
-- Compared to Peers: Below average (30th percentile)
-
-**Assessment: Medium Risk**
-**Reasoning**: Moderate engagement at 40% but concerning declining trend in recent weeks. Below-average performance compared to peers. Some consistency shown in 5-day streak, but overall irregular pattern. Requires monitoring and early intervention to prevent further decline.
+**Assessment: No Risk**
+**Reasoning**: Highly engaged with 93% engagement rate and consistent daily activity. Currently active with login today. Strong study consistency with 15-day streak. Performance in top 15% of cohort. Clear indicators that student will successfully submit the assessment.
 """
 
 # ============================================================================
@@ -316,12 +300,11 @@ def format_prompt(template: str, **kwargs) -> str:
     return template.format(**kwargs)
 
 
-def create_few_shot_prompt(task_prompt: str, num_examples: int = 3) -> str:
+def create_few_shot_prompt(task_prompt: str, num_examples: int = 2) -> str:
     """Create a few-shot prompt with examples"""
     examples = [
-        FEW_SHOT_EXAMPLES_HIGH_RISK,
-        FEW_SHOT_EXAMPLES_LOW_RISK,
-        FEW_SHOT_EXAMPLES_MEDIUM_RISK
+        FEW_SHOT_EXAMPLES_RISK,
+        FEW_SHOT_EXAMPLES_NO_RISK
     ]
     
     few_shot_context = "\n\n".join(examples[:num_examples])

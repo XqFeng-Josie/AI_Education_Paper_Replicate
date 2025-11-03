@@ -64,7 +64,7 @@ class DecisionMakerAgent(BaseAgent):
             return {
                 'agent_name': self.name,
                 'error': str(e),
-                'final_risk_level': 'Medium Risk',
+                'final_risk_level': 'No Risk',
                 'confidence': 'Low',
                 'explanation': 'Error in final decision making'
             }

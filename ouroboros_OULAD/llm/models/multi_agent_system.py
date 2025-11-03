@@ -148,7 +148,7 @@ class MultiAgentSystem:
             logger.error(f"Error in decision maker: {e}")
             final_decision = {
                 'error': str(e),
-                'final_risk_level': 'Medium Risk',
+                'final_risk_level': 'No Risk',
                 'confidence': 'Low'
             }
         
@@ -201,7 +201,7 @@ class MultiAgentSystem:
                 results.append({
                     'error': str(e),
                     'final_decision': {
-                        'final_risk_level': 'Medium Risk',
+                        'final_risk_level': 'No Risk',
                         'confidence': 'Low'
                     }
                 })
