@@ -180,4 +180,35 @@ This implementation exactly replicates the traditional ML experimental setup:
 Key difference from traditional ML:
 - **Features**: Focus on interpretable features (demographics, VLE statistics, registration) for better narrative generation, excluding detailed daily activity features
 
+## 📊 Experimental Results
+
+### Performance Summary (100 students per module per day)
+
+| Day | PR-AUC | ROC-AUC | F1 | Precision | Recall | N_Students |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0 | 0.3118 | 0.2597 | 0.6132 | 0.4559 | 0.9521 | 400 |
+| 1 | 0.2448 | 0.3502 | 0.4765 | 0.3185 | 0.9592 | 400 |
+| 2 | 0.1828 | 0.3358 | 0.3908 | 0.2477 | 0.9490 | 400 |
+| 3 | 0.1571 | 0.2793 | 0.3852 | 0.2403 | 1.0000 | 400 |
+| 4 | 0.1627 | 0.3305 | 0.3690 | 0.2299 | 0.9711 | 400 |
+| 5 | 0.1349 | 0.2875 | 0.3438 | 0.2116 | 0.9737 | 400 |
+| 6 | 0.1310 | 0.2743 | 0.3453 | 0.2132 | 0.9616 | 400 |
+| 7 | 0.2525† | 0.3806 | 0.2663 | 0.1628 | 0.7500 | 400 |
+| 8 | 0.2599† | 0.3661 | 0.2709 | 0.1702 | 0.6705 | 400 |
+| 9 | 0.3655† | 0.3783 | 0.1908 | 0.1186 | 0.4881 | 400 |
+| 10 | 0.3668† | 0.3744 | 0.1798 | 0.1109 | 0.4773 | 400 |
+| 11 | 0.1450 | 0.2838 | 0.3156 | 0.2011 | 0.8166 | 400 |
+
+
+## 🔧 Utility Scripts
+
+### Calculate Metrics
+```bash
+# Calculate metrics from saved results
+python -m llm.calculate_metrics --results_dir ./llm_experiments/results/paper_replication
+
+# Calculate for specific module
+python -m llm.calculate_metrics --results_dir ./results --module BBB
+```
+
 
