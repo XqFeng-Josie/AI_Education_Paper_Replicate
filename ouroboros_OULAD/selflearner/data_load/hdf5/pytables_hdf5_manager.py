@@ -7,7 +7,7 @@ from selflearner.data_load.config_loader import Config
 from selflearner.data_load.hdf5.pytables_descriptions import ConfigDescriptionOulad
 
 # 禁用 HDF5 文件锁定，避免在网络文件系统上出现锁定错误
-os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
+os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 
 
 class PytablesHdf5Manager:
@@ -23,14 +23,27 @@ class PytablesHdf5Manager:
         :param key_array:
         :return: True if all of them exist otherwise False
         """
-        with HDFStore(self.file_path) as store:
-            for ds in key_array:
-                if ds not in store:
-                    logging.debug("%s not in hdf5 file", ds)
-                    return False
+        import time
+
+        max_retries = 5
+        retry_delay = 0.1
+
+        for attempt in range(max_retries):
+            try:
+                with HDFStore(self.file_path, mode="r") as store:
+                    for ds in key_array:
+                        if ds not in store:
+                            logging.debug("%s not in hdf5 file", ds)
+                            return False
+                        else:
+                            logging.debug("%s checked", ds)
+                    return True
+            except (OSError, IOError) as e:
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay * (attempt + 1))
+                    continue
                 else:
-                    logging.debug("%s checked", ds)
-            return True
+                    raise
 
     def store_dataframe(self, key, df):
         try:
@@ -58,19 +71,34 @@ class PytablesHdf5Manager:
 
     def load_dataframe(self, key):
         key = self._check_and_get_alias(key)
-        with HDFStore(self.file_path) as store:
-            return store[key]
+        # 使用只读模式打开，并添加重试机制
+        import time
+
+        max_retries = 5
+        retry_delay = 0.1
+
+        for attempt in range(max_retries):
+            try:
+                # 尝试以只读模式打开
+                with HDFStore(self.file_path, mode="r") as store:
+                    return store[key]
+            except (OSError, IOError) as e:
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay * (attempt + 1))
+                    continue
+                else:
+                    raise
 
     def store_table_one_row(self, object, key, description):
         group_path, simple_key = self.create_groups(key)
-        with tables.open_file(self.file_path, 'a') as ds:
+        with tables.open_file(self.file_path, "a") as ds:
             # setattr(ds.root,)
             self.logger.debug("Creating table with one row")
             self.logger.debug("GroupPath: %s, key: %s", group_path, simple_key)
             self._remove_node(ds, key)
-            table = ds.create_table(group_path, simple_key,
-                                    description=description,
-                                    expectedrows=1)
+            table = ds.create_table(
+                group_path, simple_key, description=description, expectedrows=1
+            )
             self.logger.debug("Table created %s", key)
             self.logger.debug("Storing table data")
             row = table.row
@@ -79,16 +107,16 @@ class PytablesHdf5Manager:
             table.flush()
 
     def create_groups(self, key):
-        group_arr = [g for g in key.split(sep='/') if g]
+        group_arr = [g for g in key.split(sep="/") if g]
         logging.debug("Group arr: %s key:%s", group_arr, key)
         simple_key = group_arr[-1]
-        with tables.open_file(self.file_path, 'a') as ds:
+        with tables.open_file(self.file_path, "a") as ds:
             group_node = ds.root
-            group_path = '/'
+            group_path = "/"
             if len(group_arr) > 1:
                 # return group_node, simple_key
                 for g in group_arr[:-1]:
-                    group_path = group_path + g + '/'
+                    group_path = group_path + g + "/"
                     logging.debug("Creating new group node: %s in %s", g, group_node)
                     try:
                         group_node = ds.create_group(group_node, g)
@@ -105,11 +133,11 @@ class PytablesHdf5Manager:
         """
         self.logger.debug("Retrieving object by key: %s", key)
         try:
-            with tables.open_file(self.file_path, 'r') as ds:
+            with tables.open_file(self.file_path, "r") as ds:
                 table = getattr(ds.root, key)
-                for row in table.iterrows(0,1):
+                for row in table.iterrows(0, 1):
                     self.logger.debug("Retrieved row: %s", row)
-                    self.logger.debug("Retrieved row: %s", row['cutoff_date_train'])
+                    self.logger.debug("Retrieved row: %s", row["cutoff_date_train"])
                     return row
         except tables.exceptions.NoSuchNodeError:
             return None
@@ -118,15 +146,19 @@ class PytablesHdf5Manager:
             return None
 
     def append_object(self, row, object):
-        attr_names = [att for att in dir(object) if not att.startswith('__') and not callable(getattr(object, att))]
+        attr_names = [
+            att
+            for att in dir(object)
+            if not att.startswith("__") and not callable(getattr(object, att))
+        ]
         self.logger.debug("Appending object to row")
         for att in attr_names:
             value = getattr(object, att)
             self.logger.debug("Inserting %s into row, value= %s ", att, value)
             row[att] = value
         self.logger.debug("Stored row: %s", row)
-        self.logger.debug("Train:%s", row['id_assessment_train'])
-        self.logger.debug("Test:%s", row['id_assessment_test'])
+        self.logger.debug("Train:%s", row["id_assessment_train"])
+        self.logger.debug("Test:%s", row["id_assessment_test"])
         row.append()
         return row
 
@@ -135,7 +167,7 @@ class PytablesHdf5Manager:
         Checks whether the name is alias and returns the target.
         :param key:
         """
-        with tables.open_file(self.file_path, 'r') as ds:
+        with tables.open_file(self.file_path, "r") as ds:
             val = getattr(ds.root, key)
             val_type = type(val)
             if val_type is tables.link.SoftLink:
@@ -144,20 +176,20 @@ class PytablesHdf5Manager:
         return key
 
     def _get_group_simple_key(self, key):
-        group_arr = [k for k in key.split(sep='/') if k]
-        group_path = '/'
+        group_arr = [k for k in key.split(sep="/") if k]
+        group_path = "/"
         if len(group_arr) > 1:
-            group_path = group_path + '/'.join(group_arr[:-1])
+            group_path = group_path + "/".join(group_arr[:-1])
         simple_key = group_arr[-1]
         return group_path, simple_key
 
     def create_alias(self, source, target):
         group_path, simple_key = self.create_groups(source)
-        if not target.startswith('/'):
-            target = '/' + target
+        if not target.startswith("/"):
+            target = "/" + target
         logging.debug("GroupPath: %s name: %s", group_path, simple_key)
         logging.debug("Creating link: %s -> %s", source, target)
-        with tables.open_file(self.file_path, 'a') as ds:
+        with tables.open_file(self.file_path, "a") as ds:
             try:
                 alias = ds.get_node(group_path, simple_key)
                 logging.debug("Node soft_link already exists")
@@ -174,14 +206,14 @@ class PytablesHdf5Manager:
         :return: None
         """
         try:
-            self.logger.debug('Trying to remove node %s', name)
+            self.logger.debug("Trying to remove node %s", name)
             ds.remove_node(ds.root, name=name)
-            self.logger.debug('Node %s was removed', name)
+            self.logger.debug("Node %s was removed", name)
         except tables.NoSuchNodeError:
-            self.logger.debug('Node %s not found', name)
+            self.logger.debug("Node %s not found", name)
 
     def print_tables(self):
-        with tables.open_file(self.file_path, 'r') as ds:
+        with tables.open_file(self.file_path, "r") as ds:
             print(ds)
 
     def print_pandas(self):
@@ -189,24 +221,26 @@ class PytablesHdf5Manager:
             print(ds)
 
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 def main():
-    file_path = 'test.h5'
+    file_path = "test.h5"
     manager = PytablesHdf5Manager(file_path)
 
     logging.debug("Testing storing/loading config object")
     config = Config()
-    config.assessment_name = 'TMA2'
+    config.assessment_name = "TMA2"
     config.id_assessment = 4
     print(vars(config))
-    manager.store_table_one_row(config, 'key', ConfigDescriptionOulad)
-    with tables.open_file(file_path, 'r') as ds:
+    manager.store_table_one_row(config, "key", ConfigDescriptionOulad)
+    with tables.open_file(file_path, "r") as ds:
         print(ds)
         print(ds.root.key)
 
-    row = manager.load_object_one_row('key')
+    row = manager.load_object_one_row("key")
     # logging.debug(row)
     config = Config.from_pytable_row(row)
     logging.debug("Config: %s", vars(config))

@@ -4,7 +4,7 @@
 # Usage: bash start_llama_server.sh
 
 MODEL_PATH="/u/xfeng4/.cache/modelscope/hub/models/LLM-Research/Meta-Llama-3.1-8B-Instruct"
-PORT=8000
+PORT=8001
 HOST="0.0.0.0"
 DEVICE="auto"
 DTYPE="bfloat16"

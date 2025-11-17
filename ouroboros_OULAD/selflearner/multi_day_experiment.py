@@ -1,4 +1,8 @@
 import logging
+import os
+
+# Disable HDF5 file locking to avoid concurrent access issues
+os.environ.setdefault("HDF5_USE_FILE_LOCKING", "FALSE")
 
 import numpy as np
 import pandas as pd
