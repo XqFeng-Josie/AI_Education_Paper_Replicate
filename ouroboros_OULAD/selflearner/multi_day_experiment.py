@@ -92,6 +92,9 @@ class MultiDayExperiment:
         if self.classifiers is not None:
             self.classifiers_names = [name for cl, name in self.classifiers]
         self.experiment_results = []
+        self.data_sizes_list = []
+        self.train_data = []
+        self.test_data = []
 
     def metric_to_df(self, metric):
         df = pd.DataFrame(self.metrics[metric])
@@ -110,20 +113,40 @@ class MultiDayExperiment:
         Performs the whole experiment, iterates over days and list of problem definitions.
         """
         for problem_def in self.problem_definitions:
-            print(
-                "{} {}, Day: {}".format(
-                    problem_def.module,
-                    problem_def.presentation,
-                    problem_def.days_to_cutoff,
-                )
-            )
+            
             problem_def = problem_def
             fe = FeatureExtractionOulad(problem_def)
 
             data = fe.extract_features(features=self.features)
             train_data = data["all_train"]
             test_data = data["all_test"]
-
+            # print size of train_data and test_data
+            # print(f"Size of train_data: {len(train_data)}")
+            # print(f"Size of test_data: {len(test_data)}")
+            train_data_label_count = train_data[self.label_name].value_counts().to_dict()
+            test_data_label_count = test_data[self.label_name].value_counts().to_dict()
+            print(
+                "{} {}, Day: {}, train size: {}, test size: {}, train label count: {}, test label count: {}".format(
+                    problem_def.module,
+                    problem_def.presentation,
+                    problem_def.days_to_cutoff,
+                    len(train_data),
+                    len(test_data),
+                    train_data_label_count,
+                    test_data_label_count,
+                )
+            )
+            self.data_sizes_list.append({
+                "module": problem_def.module,
+                "presentation": problem_def.presentation,
+                "day": problem_def.days_to_cutoff,
+                "train_size": len(train_data),
+                "test_size": len(test_data),
+                "train_label_count": train_data_label_count,
+                "test_label_count": test_data_label_count,
+            })
+            self.train_data.append(train_data)
+            self.test_data.append(test_data)
             # Class counts
             experiment_result = ExperimentResult(problem_def)
             experiment_result.class_numbers_train = self._get_class_counts(train_data)
@@ -150,6 +173,18 @@ class MultiDayExperiment:
                 experiment_result.classifier_results = learner_results
 
             self.experiment_results.append(experiment_result)
+
+    def get_data_sizes_list(self):
+        return self.data_sizes_list
+
+    def get_data_sizes_df(self):
+        return pd.DataFrame(self.data_sizes_list)
+
+    def get_train_data(self):
+        return self.train_data
+
+    def get_test_data(self):
+        return self.test_data
 
     def add_metrics(self, learner: Learner):
         # add the evaluation metrics

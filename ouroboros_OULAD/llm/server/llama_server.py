@@ -27,7 +27,7 @@ class GenerateRequest(BaseModel):
     prompt: str
     system_prompt: Optional[str] = None
     temperature: float = 0.7
-    max_tokens: int = 2000
+    max_tokens: int = 4096
     do_sample: bool = True
 
 
@@ -99,7 +99,8 @@ def generate(request: GenerateRequest):
             "role": "user",
             "content": request.prompt
         })
-        
+        print(messages)
+        print("*"*100)
         # Generate
         outputs = pipeline(
             messages,
@@ -108,10 +109,10 @@ def generate(request: GenerateRequest):
             pad_token_id=pipeline.tokenizer.eos_token_id,
             do_sample=request.do_sample,
         )
-        
         # Extract response
         generated_text = outputs[0]["generated_text"][-1]['content']
-        
+        print(generated_text)
+        print("*"*100)
         # Estimate tokens (rough)
         tokens_used = len(request.prompt.split()) + len(generated_text.split())
         

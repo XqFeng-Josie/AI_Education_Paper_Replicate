@@ -1,9 +1,13 @@
 import logging
 import tables
 from pandas.io.pytables import HDFStore
+import os
 
 from selflearner.data_load.config_loader import Config
 from selflearner.data_load.hdf5.pytables_descriptions import ConfigDescriptionOulad
+
+# 禁用 HDF5 文件锁定，避免在网络文件系统上出现锁定错误
+os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
 
 
 class PytablesHdf5Manager:

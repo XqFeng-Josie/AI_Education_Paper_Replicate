@@ -4,6 +4,10 @@
 检查两种方法加载的数据是否完全一致
 """
 
+import os
+# 禁用 HDF5 文件锁定，避免在网络文件系统上出现锁定错误
+os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
+
 import sys
 import numpy as np
 import pandas as pd
