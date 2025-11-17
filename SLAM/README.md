@@ -112,6 +112,21 @@ Use this to verify the pipeline before running the full dataset.
 - `--gradient_accum_steps`: virtual batch size via gradient accumulation (default `1`)
 - `--num_workers`: DataLoader workers (default `4`)
 - `--random_seed`: ensures reproducible sampling/validation splits (default `42`)
+- `--distributed`: enable native PyTorch DistributedDataParallel (launch with `torchrun`)
+- `--dist_backend`: backend for DDP (default `nccl`)
+
+**Multi-GPU launch example**
+
+```bash
+torchrun --nproc_per_node 4 train.py \
+    --distributed \
+    --data_dir data_en_es \
+    --model llama-3.1-8b \
+    --output_dir models/llama-3.1-8b_frozen_head \
+    --num_epochs 3
+```
+
+When `--distributed` is set, each rank loads its own copy of the frozen backbone, and only the lightweight classifier head participates in gradient synchronization. Validation, checkpointing, and logging are handled by rank 0 to avoid redundant disk writes.
 
 Make sure you have access to the underlying Hugging Face model repositories (some Llama builds require authentication).
 
