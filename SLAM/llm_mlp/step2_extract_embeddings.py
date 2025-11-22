@@ -1,0 +1,378 @@
+"""
+Step 2: Extract LLM embeddings at token level.
+
+This script:
+1. Loads prepared exercise-grouped JSONL data
+2. Extracts embeddings for each token individually (no aggregation)
+3. Each token keeps exercise context in its prompt
+4. Saves token-level embeddings to .pt files
+"""
+
+import argparse
+import json
+import os
+import sys
+from typing import List
+
+import torch
+from tqdm.auto import tqdm
+from transformers import AutoTokenizer, AutoModel
+
+# Add parent directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from llm_mlp.utils import MODEL_MAPPING
+
+
+def extract_token_embeddings(
+    model: AutoModel,
+    tokenizer: AutoTokenizer,
+    exercises: List[dict],
+    batch_size: int,
+    max_length: int,
+    device: torch.device,
+    checkpoint_path: str = None,
+    resume_from: int = 0,
+    show_progress: bool = True
+) -> tuple:
+    """
+    Extract embeddings for each token individually (no aggregation).
+    Each token keeps exercise context in its prompt but gets its own embedding.
+    
+    Args:
+        model: Frozen LLM model
+        tokenizer: Tokenizer for the model
+        exercises: List of exercise dicts with 'prompts' field
+        batch_size: Batch size for processing
+        max_length: Maximum sequence length
+        device: Device to use
+        checkpoint_path: Path to save checkpoints for resume
+        resume_from: Index to resume from (0 = start from beginning)
+        show_progress: Whether to show progress bar
+    
+    Returns:
+        Tuple of (all_embeddings, all_labels, all_instance_ids)
+        - all_embeddings: tensor [N_tokens, hidden_dim]
+        - all_labels: list of token labels
+        - all_instance_ids: list of instance IDs
+    """
+    model.eval()
+    all_embeddings = []
+    all_labels = []
+    all_instance_ids = []
+    
+    # Load checkpoint if resuming
+    if resume_from > 0 and checkpoint_path and os.path.exists(checkpoint_path):
+        print(f"  Resuming from checkpoint: {checkpoint_path}")
+        checkpoint = torch.load(checkpoint_path, map_location='cpu', weights_only=False)
+        all_embeddings = checkpoint['embeddings_list']
+        all_labels = checkpoint['labels_list']
+        all_instance_ids = checkpoint['instance_ids_list']
+        print(f"  Loaded {len(all_embeddings)} previously processed tokens")
+        exercises = exercises[resume_from:]
+        print(f"  Continuing from exercise {resume_from}...")
+    
+    progress_bar = tqdm(
+        enumerate(exercises, start=resume_from),
+        desc="Extracting token embeddings",
+        disable=not show_progress,
+        initial=resume_from,
+        total=len(exercises) + resume_from
+    )
+    
+    checkpoint_interval = 1000  # Save checkpoint every 1000 exercises
+    
+    with torch.no_grad():
+        for ex_idx, exercise in progress_bar:
+            token_prompts = exercise['prompts']
+            token_labels = exercise['token_labels']
+            instance_ids = exercise['instance_ids']
+            
+            # Process tokens in batches
+            for i in range(0, len(token_prompts), batch_size):
+                batch_prompts = token_prompts[i:i+batch_size]
+                
+                # Tokenize
+                encoded = tokenizer(
+                    batch_prompts,
+                    truncation=True,
+                    padding='max_length',
+                    max_length=max_length,
+                    return_tensors='pt'
+                )
+                
+                input_ids = encoded['input_ids'].to(device)
+                attention_mask = encoded['attention_mask'].to(device)
+                
+                # Extract embeddings
+                with torch.cuda.amp.autocast(dtype=torch.float16, enabled=device.type == 'cuda'):
+                    outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+                    hidden_states = outputs.last_hidden_state if hasattr(outputs, 'last_hidden_state') else outputs[0]
+                    
+                    # Mean pooling over sequence for each token
+                    mask = attention_mask.unsqueeze(-1).type_as(hidden_states)
+                    masked_hidden = hidden_states * mask
+                    summed = masked_hidden.sum(dim=1)
+                    counts = mask.sum(dim=1).clamp(min=1.0)
+                    pooled = summed / counts
+                
+                # Convert to float32 and store each token separately
+                batch_embeddings = pooled.float().cpu()
+                for j in range(len(batch_embeddings)):
+                    all_embeddings.append(batch_embeddings[j].unsqueeze(0))
+                    all_labels.append(token_labels[i + j])
+                    all_instance_ids.append(instance_ids[i + j])
+            
+            # Save checkpoint periodically
+            if checkpoint_path and (ex_idx + 1) % checkpoint_interval == 0:
+                checkpoint = {
+                    'embeddings_list': all_embeddings,
+                    'labels_list': all_labels,
+                    'instance_ids_list': all_instance_ids,
+                    'last_index': ex_idx + 1
+                }
+                torch.save(checkpoint, checkpoint_path)
+                progress_bar.set_postfix({'checkpoint': f'saved at {ex_idx + 1}', 'tokens': len(all_embeddings)})
+    
+    # Save final checkpoint
+    if checkpoint_path:
+        checkpoint = {
+            'embeddings_list': all_embeddings,
+            'labels_list': all_labels,
+            'instance_ids_list': all_instance_ids,
+            'last_index': len(exercises) + resume_from
+        }
+        torch.save(checkpoint, checkpoint_path)
+    
+    # Concatenate all token embeddings
+    all_embeddings_tensor = torch.cat(all_embeddings, dim=0)
+    
+    return all_embeddings_tensor, all_labels, all_instance_ids
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Extract token-level LLM embeddings for SLAM data'
+    )
+    parser.add_argument(
+        '--model',
+        type=str,
+        required=True,
+        choices=list(MODEL_MAPPING.keys()),
+        help='Model to use for embedding extraction'
+    )
+    parser.add_argument(
+        '--split',
+        type=str,
+        required=True,
+        help='Data split to process'
+    )
+    parser.add_argument(
+        '--track',
+        type=str,
+        default='en_es',
+        choices=['en_es', 'es_en', 'fr_en'],
+        help='Dataset track'
+    )
+    parser.add_argument(
+        '--data_dir',
+        type=str,
+        default='llm_mlp/data',
+        help='Directory containing prepared JSONL files'
+    )
+    parser.add_argument(
+        '--output_dir',
+        type=str,
+        default='llm_mlp/embeddings',
+        help='Output directory for embeddings'
+    )
+    parser.add_argument(
+        '--batch_size',
+        type=int,
+        default=16,
+        help='Batch size for token embedding extraction'
+    )
+    parser.add_argument(
+        '--max_length',
+        type=int,
+        default=256,
+        help='Maximum sequence length'
+    )
+    parser.add_argument(
+        '--max_exercises',
+        type=int,
+        default=None,
+        help='Maximum number of exercises to process (for testing)'
+    )
+    parser.add_argument(
+        '--gpu_id',
+        type=int,
+        default=0,
+        help='GPU ID to use (default: 0)'
+    )
+    parser.add_argument(
+        '--resume',
+        action='store_true',
+        help='Resume from last checkpoint if available'
+    )
+    
+    args = parser.parse_args()
+    
+    # Setup paths
+    data_dir = os.path.join(os.path.dirname(__file__), '..', args.data_dir)
+    jsonl_path = os.path.join(data_dir, f'{args.track}_{args.split}_exercise.jsonl')
+
+    if not os.path.isfile(jsonl_path):
+        raise FileNotFoundError(f"JSONL file not found: {jsonl_path}")
+    
+    output_dir = os.path.join(os.path.dirname(__file__), '..', args.output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+    
+    output_filename = f'{args.track}_{args.split}_{args.model}_token_embeddings.pt'
+    output_path = os.path.join(output_dir, output_filename)
+    
+    # Setup checkpoint path
+    checkpoint_path = output_path.replace('.pt', '_checkpoint.pt')
+    resume_from = 0
+    
+    # Check if we should resume
+    if args.resume and os.path.exists(checkpoint_path):
+        checkpoint = torch.load(checkpoint_path, map_location='cpu', weights_only=False)
+        resume_from = checkpoint['last_index']
+        print(f"Found checkpoint at exercise {resume_from}")
+    
+    # Check if final embeddings already exist
+    if os.path.exists(output_path) and not args.resume:
+        print(f"Embeddings already exist at: {output_path}")
+        print("Skipping extraction. Delete the file to re-extract, or use --resume to continue.")
+        return
+    
+    print("="*80)
+    print("STEP 2: TOKEN-LEVEL LLM EMBEDDING EXTRACTION")
+    print("="*80)
+    print(f"Model: {args.model}")
+    print(f"Split: {args.split}")
+    print(f"Track: {args.track}")
+    print(f"Input file: {jsonl_path}")
+    print(f"Mode: Token-level (with exercise context in prompts)")
+    
+    # Load data
+    print("\n[1/4] Loading prepared exercise data...")
+    exercises = []
+    with open(jsonl_path, 'r') as f:
+        for line in f:
+            exercises.append(json.loads(line))
+    
+    print(f"  Loaded {len(exercises)} exercises")
+    total_tokens = sum(ex['num_tokens'] for ex in exercises)
+    print(f"  Total tokens: {total_tokens}")
+    
+    # Apply max_exercises if specified (for testing)
+    if args.max_exercises is not None:
+        print(f"  Limiting to {args.max_exercises} exercises for testing")
+        exercises = exercises[:args.max_exercises]
+        total_tokens = sum(ex['num_tokens'] for ex in exercises)
+        print(f"  Tokens in subset: {total_tokens}")
+    
+    # Setup device with GPU ID
+    if torch.cuda.is_available():
+        if args.gpu_id >= torch.cuda.device_count():
+            print(f"Warning: GPU {args.gpu_id} not available. Using GPU 0.")
+            args.gpu_id = 0
+        torch.cuda.set_device(args.gpu_id)
+        device = torch.device(f'cuda:{args.gpu_id}')
+    else:
+        device = torch.device('cpu')
+    
+    print(f"\n[2/4] Loading model: {args.model}")
+    print(f"  Device: {device}")
+    if torch.cuda.is_available():
+        print(f"  GPU: {torch.cuda.get_device_name(args.gpu_id)}")
+    
+    # Load model and tokenizer
+    model_path = MODEL_MAPPING[args.model]
+    print(f"  Path: {model_path}")
+    
+    # Check if it's a local path
+    is_local_path = os.path.exists(model_path)
+    
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_path,
+        trust_remote_code=True,
+        local_files_only=is_local_path
+    )
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    
+    torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+    model = AutoModel.from_pretrained(
+        model_path,
+        torch_dtype=torch_dtype,
+        trust_remote_code=True,
+        local_files_only=is_local_path
+    )
+    model.to(device)
+    model.eval()
+    
+    # Freeze model
+    for param in model.parameters():
+        param.requires_grad = False
+    
+    hidden_size = model.config.hidden_size
+    print(f"  Hidden size: {hidden_size}")
+    
+    # Extract embeddings (token-level, not aggregated)
+    print(f"\n[3/4] Extracting token embeddings (batch_size={args.batch_size})...")
+    if resume_from > 0:
+        print(f"  Resuming from exercise {resume_from}")
+    
+    embeddings, labels, instance_ids = extract_token_embeddings(
+        model=model,
+        tokenizer=tokenizer,
+        exercises=exercises,
+        batch_size=args.batch_size,
+        max_length=args.max_length,
+        device=device,
+        checkpoint_path=checkpoint_path,
+        resume_from=resume_from,
+        show_progress=True
+    )
+    
+    print(f"  Extracted embeddings shape: {embeddings.shape}")
+    print(f"  Total tokens: {len(labels)}")
+    
+    # Save embeddings
+    print(f"\n[4/4] Saving embeddings...")
+    save_data = {
+        'embeddings': embeddings,
+        'labels': torch.tensor(labels, dtype=torch.long),
+        'instance_ids': instance_ids,
+        'model_name': args.model,
+        'hidden_size': hidden_size,
+        'track': args.track,
+        'split': args.split,
+        'mode': 'token-level',
+    }
+    
+    torch.save(save_data, output_path)
+    print(f"  Saved to: {output_path}")
+    
+    # Remove checkpoint file after successful completion
+    if os.path.exists(checkpoint_path):
+        os.remove(checkpoint_path)
+        print(f"  Removed checkpoint file")
+    
+    # Print summary
+    print("\n" + "="*80)
+    print("SUMMARY")
+    print("="*80)
+    print(f"Model: {args.model}")
+    print(f"Mode: Token-level (exercise context preserved in prompts)")
+    print(f"Tokens processed: {len(embeddings)}")
+    print(f"Embedding dimension: {hidden_size}")
+    print(f"Output file: {output_path}")
+    print(f"File size: {os.path.getsize(output_path) / 1024 / 1024:.2f} MB")
+    print("="*80)
+
+
+if __name__ == '__main__':
+    main()

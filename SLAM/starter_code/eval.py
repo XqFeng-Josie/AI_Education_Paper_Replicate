@@ -17,33 +17,91 @@ def main():
 
     test_metrics()
 
-    parser = argparse.ArgumentParser(description='Duolingo shared task evaluation script')
-    parser.add_argument('--pred', help='Predictions file name', required=True)
-    parser.add_argument('--key', help='Labelled keys', required=True)
+    parser = argparse.ArgumentParser(
+        description="Duolingo shared task evaluation script"
+    )
+    parser.add_argument("--pred", help="Predictions file name", required=True)
+    parser.add_argument("--key", help="Labelled keys", required=True)
+    parser.add_argument(
+        "--threshold", help="Threshold for classification", type=float, default=0.5
+    )
+    parser.add_argument(
+        "--invert_prob",
+        action="store_true",
+        help="If set, invert probabilities (1-p) before evaluation. "
+        "Use this when model predicts error probability but labels are correctness probability.",
+    )
 
     args = parser.parse_args()
 
     assert os.path.isfile(args.pred)
 
-    print('\nLoading labels for exercises...')
+    print("\nLoading labels for exercises...")
     labels = load_labels(args.key)
+    total_labels = len(labels)
+    print("Total labels loaded: %d" % total_labels)
 
-    print('Loading predictions for exercises...')
+    print("Loading predictions for exercises...")
     predictions = load_labels(args.pred)
+    total_predictions = len(predictions)
+    print("Total predictions loaded: %d" % total_predictions)
 
     actual = []
     predicted = []
+    missing_labels = []
 
-    for instance_id in iterkeys(labels):
-        try:
+    # Only evaluate predictions that exist in pred file
+    for instance_id in iterkeys(predictions):
+        if instance_id in labels:
             actual.append(labels[instance_id])
-            predicted.append(predictions[instance_id])
-        except KeyError:
-            print('No prediction for instance ID ' + instance_id + '!')
+            prob = predictions[instance_id]
+            # Invert probability if requested (1-p)
+            if args.invert_prob:
+                prob = 1.0 - prob
+            predicted.append(prob)
+        else:
+            missing_labels.append(instance_id)
 
-    metrics = evaluate_metrics(actual, predicted)
-    line = '\t'.join([('%s=%.3f' % (metric, value)) for (metric, value) in iteritems(metrics)])
-    print('Metrics:\t' + line)
+    evaluated_count = len(actual)
+    missing_labels_count = len(missing_labels)
+
+    # Print statistics
+    print("\n=== Evaluation Statistics ===")
+    print("Total labels in key file: %d" % total_labels)
+    print("Total predictions in pred file: %d" % total_predictions)
+    print(
+        "Probability inversion: %s"
+        % ("ENABLED (1-p)" if args.invert_prob else "DISABLED")
+    )
+    print("Successfully evaluated: %d" % evaluated_count)
+    if missing_labels_count > 0:
+        print(
+            "WARNING: %d predictions have no corresponding label (skipped):"
+            % missing_labels_count
+        )
+        if missing_labels_count <= 10:
+            for inst_id in missing_labels:
+                print("  - %s" % inst_id)
+        else:
+            for inst_id in missing_labels[:10]:
+                print("  - %s" % inst_id)
+            print("  ... and %d more" % (missing_labels_count - 10))
+
+    if total_labels > 0:
+        coverage = evaluated_count / total_labels * 100.0
+        print("Coverage: %.2f%% (%d/%d)" % (coverage, evaluated_count, total_labels))
+    print("")
+
+    if evaluated_count == 0:
+        print("ERROR: No valid predictions to evaluate!")
+        return
+
+    metrics = evaluate_metrics(actual, predicted, args.threshold)
+    line = "\t".join(
+        [("%s=%.3f" % (metric, value)) for (metric, value) in iteritems(metrics)]
+    )
+    invert_note = " [prob inverted]" if args.invert_prob else ""
+    print("Metrics (on %d instances%s):\t%s" % (evaluated_count, invert_note, line))
 
 
 def load_labels(filename):
@@ -58,20 +116,22 @@ def load_labels(filename):
     """
     labels = dict()
 
-    with open(filename, 'rt') as f:
+    with open(filename, "rt") as f:
         for line in f:
             line = line.strip()
             if len(line) == 0:
                 continue
             else:
                 line = line.split()
+            if len(line) == 1:
+                line = line[0].split(",")
             instance_id = line[0]
             label = float(line[1])
             labels[instance_id] = label
     return labels
 
 
-def compute_acc(actual, predicted):
+def compute_acc(actual, predicted, threshold=0.5):
     """
     Computes the accuracy of your predictions, using 0.5 as a cutoff.
 
@@ -82,10 +142,13 @@ def compute_acc(actual, predicted):
         predicted: a list of your predicted labels
     """
     num = len(actual)
-    acc = 0.
+    acc = 0.0
     for i in range(num):
-        if round(actual[i], 0) == round(predicted[i], 0):
-            acc += 1.
+        # if round(actual[i], 0) == round(predicted[i], 0):
+        if (actual[i] >= threshold and predicted[i] >= threshold) or (
+            actual[i] < threshold and predicted[i] < threshold
+        ):
+            acc += 1.0
     acc /= num
     return acc
 
@@ -95,10 +158,12 @@ def compute_avg_log_loss(actual, predicted):
     Computes the average log loss of your predictions.
     """
     num = len(actual)
-    loss = 0.
+    loss = 0.0
 
     for i in range(num):
-        p = predicted[i] if actual[i] > .5 else 1. - predicted[i]
+        p = predicted[i] if actual[i] > 0.5 else 1.0 - predicted[i]
+        # print(p)
+        p += 1e-10
         loss -= math.log(p)
     loss /= num
     return loss
@@ -124,21 +189,23 @@ def compute_auroc(actual, predicted):
         if cur_val != sorted_posterior[i][0]:
             cur_val = sorted_posterior[i][0]
             for j in range(last_rank, i):
-                r[sorted_posterior[j][1]] = float(last_rank+1+i)/2.0
+                r[sorted_posterior[j][1]] = float(last_rank + 1 + i) / 2.0
             last_rank = i
-        if i==len(sorted_posterior)-1:
-            for j in range(last_rank, i+1):
-                r[sorted_posterior[j][1]] = float(last_rank+i+2)/2.0
+        if i == len(sorted_posterior) - 1:
+            for j in range(last_rank, i + 1):
+                r[sorted_posterior[j][1]] = float(last_rank + i + 2) / 2.0
 
     num_positive = len([0 for x in sorted_actual if x == 1])
     num_negative = num - num_positive
     sum_positive = sum([r[i] for i in range(len(r)) if sorted_actual[i] == 1])
-    auroc = ((sum_positive - num_positive * (num_positive + 1) / 2.0) / (num_negative * num_positive))
+    auroc = (sum_positive - num_positive * (num_positive + 1) / 2.0) / (
+        num_negative * num_positive
+    )
 
     return auroc
 
 
-def compute_f1(actual, predicted):
+def compute_f1(actual, predicted, threshold=0.5):
     """
     Computes the F1 score of your predictions. Note that we use 0.5 as the cutoff here.
     """
@@ -150,11 +217,11 @@ def compute_f1(actual, predicted):
     true_negatives = 0
 
     for i in range(num):
-        if actual[i] >= 0.5 and predicted[i] >= 0.5:
+        if actual[i] >= threshold and predicted[i] >= threshold:
             true_positives += 1
-        elif actual[i] < 0.5 and predicted[i] >= 0.5:
+        elif actual[i] < threshold and predicted[i] >= threshold:
             false_positives += 1
-        elif actual[i] >= 0.5 and predicted[i] < 0.5:
+        elif actual[i] >= threshold and predicted[i] < threshold:
             false_negatives += 1
         else:
             true_negatives += 1
@@ -169,16 +236,16 @@ def compute_f1(actual, predicted):
     return F1
 
 
-def evaluate_metrics(actual, predicted):
+def evaluate_metrics(actual, predicted, threshold=0.5):
     """
     This computes and returns a dictionary of notable evaluation metrics for your predicted labels.
     """
-    acc = compute_acc(actual, predicted)
+    acc = compute_acc(actual, predicted, threshold)
     avg_log_loss = compute_avg_log_loss(actual, predicted)
     auroc = compute_auroc(actual, predicted)
-    F1 = compute_f1(actual, predicted)
+    F1 = compute_f1(actual, predicted, threshold)
 
-    return {'accuracy': acc, 'avglogloss': avg_log_loss, 'auroc': auroc, 'F1': F1}
+    return {"accuracy": acc, "avglogloss": avg_log_loss, "auroc": auroc, "F1": F1}
 
 
 def test_metrics():
@@ -186,11 +253,12 @@ def test_metrics():
     predicted = [0.8, 0.2, 0.6, 0.3, 0.1, 0.2, 0.3, 0.9, 0.2, 0.7]
     metrics = evaluate_metrics(actual, predicted)
     metrics = {key: round(metrics[key], 3) for key in iterkeys(metrics)}
-    assert metrics['accuracy'] == 0.700
-    assert metrics['avglogloss'] == 0.613
-    assert metrics['auroc'] == 0.740
-    assert metrics['F1'] == 0.667
-    print('Verified that our environment is calculating metrics correctly.')
+    assert metrics["accuracy"] == 0.700
+    assert metrics["avglogloss"] == 0.613
+    assert metrics["auroc"] == 0.740
+    assert metrics["F1"] == 0.667
+    print("Verified that our environment is calculating metrics correctly.")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

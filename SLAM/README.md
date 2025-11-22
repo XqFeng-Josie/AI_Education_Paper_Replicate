@@ -1,191 +1,164 @@
 # SLAM: Second Language Acquisition Modeling
 
-Replication of the SLAM shared task experiments for predicting token-level learner errors in second-language learning using Duolingo traces.
+Replication and extension of the SLAM shared task for predicting learner errors in second-language learning.
 
 **Paper**: [Second Language Acquisition Modeling](https://aclanthology.org/W18-0506.pdf)  
 **Dataset**: [Duolingo SLAM Dataset](https://doi.org/10.7910/DVN/8SWHNO)
 
-## Overview
+## Task
 
-The SLAM task predicts token-level learner errors using large-scale Duolingo traces. The corpus contains >7M tokens from ~6.4k beginners of English, Spanish, and French collected over learners' first 30 days.
+Predict **token-level learner errors** using Duolingo learning traces:
+- Input: Exercise with token features + user learning history
+- Output: Probability of correct answer for each token (0-1)
+- Dataset: >7M tokens from ~6.4k learners across 3 language tracks
 
-This repository includes:
-- **Baseline**: Logistic regression model (replicates paper results)
-- **LLM Models**: Frozen-backbone classifiers using Llama, Mistral, and Qwen
-
-## Environment Setup
-
-### Requirements
+## Quick Start
 
 ```bash
+# Setup
 pip install -r requirements.txt
-```
 
-**Key dependencies:**
-- `torch>=2.0.0`
-- `transformers>=4.30.0`
-- `scikit-learn>=1.3.0`
-- `datasets>=2.12.0`
-
-### Model Access
-
-Some models (especially Llama) require HuggingFace authentication:
-```bash
-huggingface-cli login
-```
-
-## Data
-
-### Dataset Structure
-
-The dataset includes three language tracks:
-- `data_en_es/`: English learners from Spanish
-- `data_es_en/`: Spanish learners from English  
-- `data_fr_en/`: French learners from English
-
-Each track contains:
-- `{track}.slam.20190204.train`: Training data
-- `{track}.slam.20190204.dev`: Development data
-- `{track}.slam.20190204.test`: Test data
-
-Answer keys are in `keys/` directory.
-
-### Data Format
-
-Each instance contains:
-- Token-level features: token, POS, morphological features, dependency labels
-- Exercise metadata: user ID, format, session type
-- Binary label: 0 = incorrect, 1 = correct
-
-## Scripts
-
-### 1. Baseline Model
-
-Run the logistic regression baseline:
-
-```bash
-# Test set
+# Run baseline
 ./run_baseline.sh en_es test
 
-# Dev set
-./run_baseline.sh en_es dev
+# Run LLM+MLP
+./llm_mlp/run_pipeline.sh llama-3.1-8b en_es
 
-# Other tracks
-./run_baseline.sh es_en test
-./run_baseline.sh fr_en test
+# Run Zero-Shot LLM (70B)
+./llm_zeroshot/run_zeroshot_pipeline.sh llama-3.3-70b-instruct en_es dev
 ```
 
-Output: `baseline_{track}_{split}.pred` with predictions and evaluation metrics.
+## Approaches
 
-### 2. LLM Training
+### 1. Baseline (Logistic Regression)
 
-Train frozen-backbone classifiers (only classification head is trained):
+**Features**: Token, POS, morphology, user ID, format  
+**Training**: Scikit-learn LogisticRegression
 
 ```bash
-python train.py \
-    --data_dir data_en_es \
-    --model llama-3.1-8b \
-    --output_dir models/llama-3.1-8b_frozen_head \
-    --num_epochs 3 \
-    --learning_rate 5e-4 \
-    --batch_size 64 \
-    --val_ratio 0.1
+./run_baseline.sh en_es test
 ```
 
-**Supported models:**
-- `llama-3.1-8b`
-- `llama-3.3-70b-instruct`
-- `mistral-7b`
-- `qwen-2.5-7b`
+**Files**: `starter_code/baseline.py`, `run_baseline.sh`
 
-**Key parameters:**
-- `--train_ratio`: Subsample training data (default: 1.0)
-- `--val_ratio`: Validation split from training data (default: 0.05)
-- `--max_length`: Tokenizer max length (default: 256)
-- `--grad_accum_steps`: Gradient accumulation steps (default: 1)
+### 2. LLM+MLP (Our Extension)
 
-**Multi-GPU training:**
-```bash
-torchrun --nproc_per_node 4 train.py \
-    --distributed \
-    --data_dir data_en_es \
-    --model llama-3.1-8b \
-    --output_dir models/llama-3.1-8b_frozen_head \
-    --num_epochs 3
-```
-
-### 3. Inference
-
-Generate predictions with trained models:
+**Features**: Exercise context + user learning history  
+**Architecture**: Frozen LLM (embeddings) + Trainable MLP (2-layer classifier)
 
 ```bash
-python inference.py \
-    --model_dir models/llama-3.1-8b_frozen_head \
-    --data_dir data_en_es \
-    --split test \
-    --output_file predictions/llama_test.pred
+# Full pipeline: data → embeddings → training → inference → eval
+./llm_mlp/run_pipeline.sh llama-3.1-8b en_es
 ```
 
-### 4. Evaluation
+**Details**: See [`llm_mlp/README.md`](llm_mlp/README.md) for design rationale and instructions.
 
-Evaluate predictions:
+### 3. Zero-Shot LLM (70B) - New!
+
+**Features**: Exercise context + user history + direct probability prediction  
+**Architecture**: 70B LLM with zero-shot prompting (no training required)
+
+```bash
+# Full pipeline: prompts → inference → eval
+./llm_zeroshot/run_zeroshot_pipeline.sh llama-3.3-70b-instruct en_es dev
+
+# Test on 10 exercises first
+./llm_zeroshot/run_zeroshot_pipeline.sh llama-3.3-70b-instruct en_es dev 10
+```
+
+**Details**: See [`llm_zeroshot/README.md`](llm_zeroshot/README.md) for prompt design and usage.
+
+**Requirements**: A100 GPU (40GB+) with int8 quantization
+
+## Results
+
+### en_es Track (English from Spanish learners)
+
+| Model | AUC | F1 | Accuracy | Notes |
+|-------|-----|-----|----------|-------|
+| **Baseline** | | | | |
+| Logistic Regression | 0.774 | 0.190 | - | Paper baseline (replicated) |
+| **LLM+MLP** | | | | |
+| Llama3.1-8B + MLP | TBD | TBD | TBD | Token-level, exercise context |
+| Mistral-7B + MLP | TBD | TBD | TBD | Token-level, exercise context |
+| Qwen2.5-7B + MLP | TBD | TBD | TBD | Token-level, exercise context |
+| **Zero-Shot LLM** | | | | |
+| Llama3.3-70B (zero-shot) | TBD | TBD | TBD | Direct probability output, no training |
+| Llama3.1-70B (zero-shot) | TBD | TBD | TBD | Direct probability output, no training |
+
+> **Note**: Fill in results after running experiments. Baseline target: AUC~0.774, F1~0.190
+
+### Class Distribution (en_es)
+- **Token-level**: 13% correct, 87% incorrect  
+- **Exercise-level** (all tokens correct): 3% correct, 97% incorrect
+
+## Data Format
+
+Each instance contains:
+```
+Token: "table"
+POS: NOUN
+Morphology: {Number: Sing}
+Dependency: ROOT
+Exercise metadata: user, format, session, days
+Label: 0 (incorrect) or 1 (correct)
+```
+
+## Dataset Structure
+
+```
+dataset/
+├── en_es.slam.20190204.{train,dev,test}
+├── es_en.slam.20190204.{train,dev,test}
+├── fr_en.slam.20190204.{train,dev,test}
+└── keys/
+    ├── en_es.slam.20190204.{dev,test}.key
+    └── ...
+```
+
+**Splits**:
+- Train: For baseline training / user history construction
+- Dev: For LLM+MLP training
+- Test: For final evaluation
+
+## Reproduction
+
+### Baseline
+```bash
+# Replicate paper results
+./run_baseline.sh en_es test
+```
+
+### LLM+MLP
+```bash
+# Step-by-step
+cd llm_mlp
+python step1_prepare_data.py --track en_es
+python step2_extract_embeddings.py --model llama-3.1-8b --split dev --track en_es
+# ... (see llm_mlp/README.md)
+
+# Or run full pipeline
+./llm_mlp/run_pipeline.sh llama-3.1-8b en_es
+```
+
+## Evaluation
 
 ```bash
 python starter_code/eval.py \
-    --pred predictions/llama_test.pred \
-    --key keys/en_es.slam.20190204.test
+    --pred predictions/model_en_es_test.pred \
+    --key dataset/en_es.slam.20190204.test.key
 ```
 
-**Metrics reported:**
-- AUC (primary ranking metric)
-- F1 Score
-- Accuracy
-- Average Log Loss
+Output metrics: **AUC, F1, Accuracy, Avg Log Loss**
 
-## Experimental Results
+## Environment
 
-### Baseline Model
+```bash
+# Python 3.8+
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 
-| Track | Paper AUC | Paper F1 | Our AUC | Our F1 | Status |
-|-------|-----------|----------|---------|--------|--------|
-| **en_es** | 0.774 | 0.190 | **0.774** | **0.190** | ✅ Replicated |
-| **es_en** | 0.746 | 0.175 | **0.746** | **0.177** | ✅ Replicated |
-| **fr_en** | 0.771 | 0.281 | **0.770** | **0.281** | ✅ Replicated |
-
-Results match the paper's SLAM_baseline (Table 2) with minimal differences (ΔAUC ≤ 0.001, ΔF1 ≤ 0.002).
-
-### LLM Models
-
-LLM fine-tuning experiments are in progress. Results will be updated here once available.
-
-## Project Structure
-
-```
-SLAM/
-├── data_en_es/              # Dataset files (en_es track)
-├── data_es_en/              # Dataset files (es_en track)
-├── data_fr_en/              # Dataset files (fr_en track)
-├── keys/                     # Answer keys for evaluation
-├── starter_code/             # Original baseline code
-│   ├── baseline.py          # Baseline logistic regression
-│   ├── eval.py              # Evaluation script
-│   └── README.md            # Original documentation
-├── models/                   # Trained model checkpoints
-├── predictions/             # Prediction outputs
-├── data_preprocessing.py    # Data loading for LLM
-├── train.py                 # LLM training script
-├── inference.py             # LLM inference script
-├── run_baseline.sh          # Baseline experiment wrapper
-└── requirements.txt         # Python dependencies
-```
-
-## Citation
-
-```bibtex
-@inproceedings{settles2018duolingo,
-  title={The Second Language Acquisition Modeling (SLAM) Shared Task},
-  author={Settles, Burr and LaFlair, Geoffrey T and Hagiwara, Masato},
-  booktitle={Proceedings of the 13th Workshop on Innovative Use of NLP for Building Educational Applications},
-  year={2018}
-}
+# For Llama models
+huggingface-cli login
 ```

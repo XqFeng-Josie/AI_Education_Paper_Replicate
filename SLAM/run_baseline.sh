@@ -2,13 +2,19 @@
 
 task=${1:-"en_es"} # en_es, es_en, fr_en
 split=${2:-"test"}
-data_dir=data_${task}
+
+wc -l dataset/${task}.slam.20190204.train
+echo "--------------------------------------"
+wc -l dataset/${task}.slam.20190204.dev
+echo "--------------------------------------"
+wc -l dataset/${task}.slam.20190204.test
+echo "--------------------------------------"
 
 python starter_code/baseline.py \
-    --train ${data_dir}/${task}.slam.20190204.train \
-    --test ${data_dir}/${task}.slam.20190204.${split} \
-    --pred ${data_dir}/baseline_${task}_${split}.pred
+    --train dataset/${task}.slam.20190204.train \
+    --test dataset/${task}.slam.20190204.${split} \
+    --pred dataset/${task}.slam.20190204.${split}.pred
 
 python starter_code/eval.py \
-    --pred ${data_dir}/baseline_${task}_${split}.pred \
-    --key ${data_dir}/${task}.slam.20190204.${split}.key
+    --pred dataset/${task}.slam.20190204.${split}.pred \
+    --key dataset/${task}.slam.20190204.${split}.key
