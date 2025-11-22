@@ -12,11 +12,12 @@ import argparse
 import json
 import os
 import sys
-from typing import List
+from typing import List, Union
 
 import torch
 from tqdm.auto import tqdm
 from transformers import AutoTokenizer, AutoModel
+from accelerate import infer_auto_device_map, dispatch_model
 
 # Add parent directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -29,10 +30,11 @@ def extract_token_embeddings(
     exercises: List[dict],
     batch_size: int,
     max_length: int,
-    device: torch.device,
+    device: Union[torch.device, str],
     checkpoint_path: str = None,
     resume_from: int = 0,
-    show_progress: bool = True
+    show_progress: bool = True,
+    multi_gpu: bool = False
 ) -> tuple:
     """
     Extract embeddings for each token individually (no aggregation).
@@ -100,11 +102,19 @@ def extract_token_embeddings(
                     return_tensors='pt'
                 )
                 
-                input_ids = encoded['input_ids'].to(device)
-                attention_mask = encoded['attention_mask'].to(device)
+                # For multi-GPU, send to the first device of the model
+                if multi_gpu:
+                    # Get the device of the first model parameter
+                    first_device = next(model.parameters()).device
+                    input_ids = encoded['input_ids'].to(first_device)
+                    attention_mask = encoded['attention_mask'].to(first_device)
+                else:
+                    input_ids = encoded['input_ids'].to(device)
+                    attention_mask = encoded['attention_mask'].to(device)
                 
                 # Extract embeddings
-                with torch.cuda.amp.autocast(dtype=torch.float16, enabled=device.type == 'cuda'):
+                use_amp = torch.cuda.is_available() and (not multi_gpu or str(device) != 'cpu')
+                with torch.cuda.amp.autocast(dtype=torch.float16, enabled=use_amp):
                     outputs = model(input_ids=input_ids, attention_mask=attention_mask)
                     hidden_states = outputs.last_hidden_state if hasattr(outputs, 'last_hidden_state') else outputs[0]
                     
@@ -214,8 +224,37 @@ def main():
         action='store_true',
         help='Resume from last checkpoint if available'
     )
+    parser.add_argument(
+        '--multi_gpu',
+        action='store_true',
+        help='Use multiple GPUs with device_map="auto" for large models (e.g., 70B). Ignores --gpu_id.'
+    )
+    parser.add_argument(
+        '--use_int8',
+        action='store_true',
+        help='Use INT8 quantization for 2-3x speedup with <1%% accuracy loss'
+    )
+    parser.add_argument(
+        '--use_int4',
+        action='store_true',
+        help='Use INT4 quantization for 4-6x speedup with 1-3%% accuracy loss'
+    )
+    parser.add_argument(
+        '--use_flash_attn',
+        action='store_true',
+        help='Use Flash Attention 2 for 1.5-2x speedup with 0%% accuracy loss'
+    )
+    parser.add_argument(
+        '--use_bfloat16',
+        action='store_true',
+        help='Use BFloat16 instead of Float16 (for A100/H100 GPUs)'
+    )
     
     args = parser.parse_args()
+    
+    # Validate quantization args
+    if args.use_int8 and args.use_int4:
+        raise ValueError("Cannot use both INT8 and INT4 quantization. Choose one.")
     
     # Setup paths
     data_dir = os.path.join(os.path.dirname(__file__), '..', args.data_dir)
@@ -273,20 +312,32 @@ def main():
         total_tokens = sum(ex['num_tokens'] for ex in exercises)
         print(f"  Tokens in subset: {total_tokens}")
     
-    # Setup device with GPU ID
-    if torch.cuda.is_available():
-        if args.gpu_id >= torch.cuda.device_count():
-            print(f"Warning: GPU {args.gpu_id} not available. Using GPU 0.")
-            args.gpu_id = 0
-        torch.cuda.set_device(args.gpu_id)
-        device = torch.device(f'cuda:{args.gpu_id}')
+    # Setup device and multi-GPU strategy
+    if args.multi_gpu:
+        if not torch.cuda.is_available():
+            raise RuntimeError("Multi-GPU mode requires CUDA, but no CUDA devices found.")
+        
+        num_gpus = torch.cuda.device_count()
+        print(f"\n[INFO] Multi-GPU mode enabled: Using {num_gpus} GPUs")
+        for i in range(num_gpus):
+            print(f"  GPU {i}: {torch.cuda.get_device_name(i)}")
+        
+        device = "auto"  # Will use device_map
     else:
-        device = torch.device('cpu')
+        if torch.cuda.is_available():
+            if args.gpu_id >= torch.cuda.device_count():
+                print(f"Warning: GPU {args.gpu_id} not available. Using GPU 0.")
+                args.gpu_id = 0
+            torch.cuda.set_device(args.gpu_id)
+            device = torch.device(f'cuda:{args.gpu_id}')
+        else:
+            device = torch.device('cpu')
     
     print(f"\n[2/4] Loading model: {args.model}")
-    print(f"  Device: {device}")
-    if torch.cuda.is_available():
-        print(f"  GPU: {torch.cuda.get_device_name(args.gpu_id)}")
+    if not args.multi_gpu:
+        print(f"  Device: {device}")
+        if torch.cuda.is_available():
+            print(f"  GPU: {torch.cuda.get_device_name(args.gpu_id)}")
     
     # Load model and tokenizer
     model_path = MODEL_MAPPING[args.model]
@@ -303,14 +354,92 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     
-    torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-    model = AutoModel.from_pretrained(
-        model_path,
-        torch_dtype=torch_dtype,
-        trust_remote_code=True,
-        local_files_only=is_local_path
-    )
-    model.to(device)
+    # Determine dtype
+    if args.use_bfloat16:
+        torch_dtype = torch.bfloat16
+        print("  Using BFloat16 precision")
+    elif torch.cuda.is_available():
+        torch_dtype = torch.float16
+    else:
+        torch_dtype = torch.float32
+    
+    # Prepare quantization config
+    quantization_config = None
+    if args.use_int8 or args.use_int4:
+        try:
+            from transformers import BitsAndBytesConfig
+        except ImportError:
+            raise ImportError(
+                "Quantization requires 'bitsandbytes'. Install with: pip install bitsandbytes"
+            )
+        
+        if args.use_int8:
+            print("  Using INT8 quantization (2-3x speedup expected)")
+            quantization_config = BitsAndBytesConfig(
+                load_in_8bit=True,
+                llm_int8_threshold=6.0,
+            )
+        elif args.use_int4:
+            print("  Using INT4 quantization (4-6x speedup expected)")
+            quantization_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch_dtype,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4"
+            )
+    
+    # Flash Attention config
+    attn_implementation = None
+    if args.use_flash_attn:
+        print("  Using Flash Attention 2 (1.5-2x speedup expected)")
+        attn_implementation = "flash_attention_2"
+    
+    # Load model with appropriate device strategy
+    if args.multi_gpu:
+        print("  Loading model with device_map='auto' for multi-GPU...")
+        model_kwargs = {
+            "torch_dtype": torch_dtype,
+            "trust_remote_code": True,
+            "local_files_only": is_local_path,
+            "device_map": "auto",
+            "low_cpu_mem_usage": True
+        }
+        if quantization_config is not None:
+            model_kwargs["quantization_config"] = quantization_config
+        if attn_implementation is not None:
+            model_kwargs["attn_implementation"] = attn_implementation
+        
+        model = AutoModel.from_pretrained(model_path, **model_kwargs)
+        
+        print("  Model distributed across GPUs:")
+        # Print device map
+        if hasattr(model, 'hf_device_map'):
+            device_summary = {}
+            for name, dev in model.hf_device_map.items():
+                dev_str = str(dev)
+                if dev_str not in device_summary:
+                    device_summary[dev_str] = 0
+                device_summary[dev_str] += 1
+            for dev, count in sorted(device_summary.items()):
+                print(f"    {dev}: {count} modules")
+    else:
+        model_kwargs = {
+            "torch_dtype": torch_dtype,
+            "trust_remote_code": True,
+            "local_files_only": is_local_path
+        }
+        if quantization_config is not None:
+            model_kwargs["quantization_config"] = quantization_config
+            model_kwargs["device_map"] = "auto"  # Quantization requires device_map
+        if attn_implementation is not None:
+            model_kwargs["attn_implementation"] = attn_implementation
+        
+        model = AutoModel.from_pretrained(model_path, **model_kwargs)
+        
+        # Only move to device if not using quantization
+        if quantization_config is None:
+            model.to(device)
+    
     model.eval()
     
     # Freeze model
@@ -334,7 +463,8 @@ def main():
         device=device,
         checkpoint_path=checkpoint_path,
         resume_from=resume_from,
-        show_progress=True
+        show_progress=True,
+        multi_gpu=args.multi_gpu
     )
     
     print(f"  Extracted embeddings shape: {embeddings.shape}")

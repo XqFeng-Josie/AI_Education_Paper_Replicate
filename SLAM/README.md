@@ -16,8 +16,9 @@ Predict **token-level learner errors** using Duolingo learning traces:
 
 ```bash
 # Setup
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-
 # Run baseline
 ./run_baseline.sh en_es test
 
@@ -41,7 +42,7 @@ pip install -r requirements.txt
 
 **Files**: `starter_code/baseline.py`, `run_baseline.sh`
 
-### 2. LLM+MLP (Our Extension)
+### 2. LLM+MLP
 
 **Features**: Exercise context + user learning history  
 **Architecture**: Frozen LLM (embeddings) + Trainable MLP (2-layer classifier)
@@ -53,7 +54,7 @@ pip install -r requirements.txt
 
 **Details**: See [`llm_mlp/README.md`](llm_mlp/README.md) for design rationale and instructions.
 
-### 3. Zero-Shot LLM (70B) - New!
+### 3. Zero-Shot LLM (70B)
 
 **Features**: Exercise context + user history + direct probability prediction  
 **Architecture**: 70B LLM with zero-shot prompting (no training required)
