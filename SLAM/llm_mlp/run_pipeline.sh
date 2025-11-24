@@ -50,7 +50,7 @@ python llm_mlp/step3_train_mlp.py \
     --embeddings_path llm_mlp/embeddings/${TRACK}_dev_${MODEL}_token_embeddings.pt \
     --model_name $MODEL \
     --track $TRACK \
-    --num_epochs 10 \
+    --num_epochs 50 \
     --batch_size 128 \
     --learning_rate 5e-4
 

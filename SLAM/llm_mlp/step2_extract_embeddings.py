@@ -388,11 +388,25 @@ def main():
                 bnb_4bit_quant_type="nf4"
             )
     
-    # Flash Attention config
+    # Flash Attention config with availability check
     attn_implementation = None
     if args.use_flash_attn:
-        print("  Using Flash Attention 2 (1.5-2x speedup expected)")
-        attn_implementation = "flash_attention_2"
+        # Check if Flash Attention is available
+        flash_attn_available = False
+        try:
+            import flash_attn
+            flash_attn_available = True
+            print("  Using Flash Attention 2 (1.5-2x speedup expected)")
+            attn_implementation = "flash_attention_2"
+        except ImportError as e:
+            print("  ⚠️  WARNING: Flash Attention not available")
+            if "GLIBC" in str(e):
+                print("     Reason: System GLIBC version too old (requires GLIBC 2.32+)")
+                print("     Solution: Use quantization only (--use_int8 or --use_int4)")
+            else:
+                print(f"     Reason: {str(e)}")
+                print("     Install with: pip install flash-attn --no-build-isolation")
+            print("  Continuing WITHOUT Flash Attention...")
     
     # Load model with appropriate device strategy
     if args.multi_gpu:

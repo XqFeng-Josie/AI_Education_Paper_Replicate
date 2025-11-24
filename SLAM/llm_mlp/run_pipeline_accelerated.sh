@@ -5,7 +5,8 @@ set -e  # Exit on error
 
 MODEL="${1:-llama3-70b}"
 TRACK="${2:-en_es}"
-ACCELERATION="${3:-int8_flash}"  # Options: int8, int4, flash, int8_flash, int4_flash
+ACCELERATION="${3:-int8}"  # Options: int8, int4, flash, int8_flash, int4_flash
+# Note: flash attention requires GLIBC 2.32+, may not work on older systems
 
 echo "==========================================="
 echo "LLM+MLP Pipeline (ACCELERATED)"

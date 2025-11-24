@@ -54,7 +54,7 @@ pip install -r requirements.txt
 
 **Details**: See [`llm_mlp/README.md`](llm_mlp/README.md) for design rationale and instructions.
 
-### 3. Zero-Shot LLM (70B)
+<!-- ### 3. Zero-Shot LLM (70B)
 
 **Features**: Exercise context + user history + direct probability prediction  
 **Architecture**: 70B LLM with zero-shot prompting (no training required)
@@ -69,23 +69,23 @@ pip install -r requirements.txt
 
 **Details**: See [`llm_zeroshot/README.md`](llm_zeroshot/README.md) for prompt design and usage.
 
-**Requirements**: A100 GPU (40GB+) with int8 quantization
+**Requirements**: A100 GPU (40GB+) with int8 quantization -->
 
 ## Results
 
 ### en_es Track (English from Spanish learners)
 
-| Model | AUC | F1 | Accuracy | Notes |
-|-------|-----|-----|----------|-------|
+| Model | AUC | F1 | Notes |
+|-------|-----|-----|-------|
 | **Baseline** | | | | |
-| Logistic Regression | 0.774 | 0.190 | - | Paper baseline (replicated) |
+| Logistic Regression | 0.774 | 0.190 | Paper baseline (replicated) |
 | **LLM+MLP** | | | | |
-| Llama3.1-8B + MLP | TBD | TBD | TBD | Token-level, exercise context |
-| Mistral-7B + MLP | TBD | TBD | TBD | Token-level, exercise context |
-| Qwen2.5-7B + MLP | TBD | TBD | TBD | Token-level, exercise context |
-| **Zero-Shot LLM** | | | | |
-| Llama3.3-70B (zero-shot) | TBD | TBD | TBD | Direct probability output, no training |
-| Llama3.1-70B (zero-shot) | TBD | TBD | TBD | Direct probability output, no training |
+| Llama3.1-8B + MLP | 0.791 | 0.402 | Token-level, exercise context |
+| Mistral-7B + MLP | 0.806 | 0.429 | Token-level, exercise context |
+| Qwen2.5-7B + MLP | 0.805 | 0.408 | Token-level, exercise context |
+| Llama3.1-70B + MLP | TBD | TBD | Token-level, exercise context |
+<!-- | **Zero-Shot LLM** | | | | |
+| Llama3.1-70B (zero-shot) | TBD | TBD | Direct probability output, no training | -->
 
 > **Note**: Fill in results after running experiments. Baseline target: AUC~0.774, F1~0.190
 
@@ -151,15 +151,3 @@ python starter_code/eval.py \
 ```
 
 Output metrics: **AUC, F1, Accuracy, Avg Log Loss**
-
-## Environment
-
-```bash
-# Python 3.8+
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# For Llama models
-huggingface-cli login
-```
