@@ -80,10 +80,10 @@ pip install -r requirements.txt
 | **Baseline** | | | | |
 | Logistic Regression | 0.774 | 0.190 | Paper baseline (replicated) |
 | **LLM+MLP** | | | | |
-| Llama3.1-8B + MLP | 0.791 | 0.402 | Token-level, exercise context |
-| Mistral-7B + MLP | 0.806 | 0.429 | Token-level, exercise context |
-| Qwen2.5-7B + MLP | 0.805 | 0.408 | Token-level, exercise context |
-| Llama3.1-70B + MLP | TBD | TBD | Token-level, exercise context |
+| Llama-3.1-8B-Instruct + MLP | 0.791 | 0.402 | Token-level, exercise context |
+| Mistral-7B-Instruct-v0.3 + MLP | 0.806 | 0.429 | Token-level, exercise context |
+| Qwen2.5-7B-Instruct + MLP | 0.805 | 0.408 | Token-level, exercise context |
+| Meta-Llama-3.3-70B-Instruct + MLP | TBD | TBD | Token-level, exercise context |
 <!-- | **Zero-Shot LLM** | | | | |
 | Llama3.1-70B (zero-shot) | TBD | TBD | Direct probability output, no training | -->
 
