@@ -26,8 +26,8 @@ TEST_RATIO = 0.15
 RANDOM_SEED = 42
 
 # API Keys (set these as environment variables or replace with your keys)
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "sk-proj-BDZkUNPtZ- QPMfJG55WbNkmus7IupVQt -T9olUe0RlovaZwRWF-In- owr6EZoyNFe1ITk9mkvXT3BlbkFJnl y1NOa5FbBGd4yHXjh3vnJHKWBYfnqS FB0cq47RMO1nPt2kVHjJ919RIMesQV aPgOsTpKMN8A")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")  # For Llama-3.1-405B
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")  # For Llama-3.1-405B
 
 # Model configurations
 MODEL_CONFIGS = {
