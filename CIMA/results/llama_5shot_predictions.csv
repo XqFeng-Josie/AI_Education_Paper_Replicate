@@ -1,0 +1,162 @@
+utterance,true_label,predicted_label
+"How do you say ""is next to""?
+ ",Question,Question
+did i write it correctly,Question,Question
+"Ok, I will remember that.",Affirmation,Other
+how do I say in front of?,Question,Guess
+il gatto e accanto al tavalo rosa.,Guess,Guess
+"Is it ""e di fronte coniglio rosso""?",Guess,Guess
+"I can't remember the word for ""box"".",Question,Other
+"I don't remember how to say ""is behind the"".",Question,Other
+il cane e sotto tavolo verde.,Guess,Guess
+I don't remember how to say is in front of the in Italian. Any help?,Question,Guess
+la borsa e di fronte alla gialla scatola?,Guess,Guess
+e vicino di fronte conigula blue,Question,Guess
+What is the word for plant?,Question,Question
+Would e di fronte scatola rossa be correct?,Guess,Guess
+"The Italian word for box is scatola, correct?",Question,Affirmation
+How do you say pink box/,Question,Guess
+Il coniglio e deitro il blu perro,Guess,Guess
+What is the word for purple?,Question,Question
+La borsa e dietro la gialla scatola.,Guess,Other
+what is next to again?,Question,Question
+How do you say pink?,Question,Question
+This is irrelevant to the question implied here.,Question,Other
+Ok i think I got it.,Affirmation,Other
+ la borsa a la e dietro la,Guess,Guess
+Okay. Can you remind me how to say is on top of again?,Question,Guess
+what is the word for tree?,Question,Question
+ il gatto e di fronte al all'albero blu,Guess,Guess
+"Is it ""la borsa alla scatola rosa""?",Guess,Guess
+So what's the correct answer?,Question,Guess
+il coniglio e di fronte all albero viola,Guess,Guess
+How do you say blue in Italian?,Question,Question
+la palla e sotto tree rossa.,Guess,Guess
+Is gialla Italian for yellow?,Question,Question
+e in cima al la table blu,Guess,Guess
+What is the word for plant?,Question,Question
+"Sure, check. Again, pretty standard. ",Affirmation,Guess
+la pianta e in cima al tavolo,Guess,Other
+"What is the word for ""tree""?",Question,Question
+La pianta e dentro la scatola gialla.,Guess,Other
+I understand.,Affirmation,Other
+I think you say il gatto rosa.,Guess,Guess
+giallo gato,Guess,Other
+what is inside in italian?,Question,Question
+OK. I don't know the word for tree.,Question,Other
+e dentro la rosa scatola,Guess,Guess
+ what is italian for blue?,Question,Question
+il cane e al linterno della scatola verde,Guess,Guess
+"what is ""bag"" in italian?",Question,Guess
+What's inside and red?,Question,Guess
+e in cima al tavolo giollo,Guess,Guess
+il coniglio e dietro il carne verde.,Guess,Guess
+ il coniglio e dietro l'albero rosa,Guess,Guess
+And how do you say yellow?,Question,Question
+What is tree in Italian?,Question,Question
+What is the word for behind again?,Question,Guess
+how do you say in front of?,Question,Question
+what is on top?,Question,Question
+il coniglio e deitro il blu cane,Guess,Guess
+what is the word for bed?,Question,Guess
+e dietro il al cane rosa,Guess,Guess
+ok.,Affirmation,Other
+"What is Italian for ""inside of""?",Question,Question
+"How do you say ""bed""?",Question,Question
+Is it e dentro al tavolo blu?,Guess,Guess
+how do you say the green tree?,Question,Question
+e vinceno al planto pinko,Guess,Guess
+e vicino al la rosa letto,Guess,Guess
+e di fronte,Affirmation,Guess
+Tree?,Question,Other
+la palla es letto rosso,Guess,Guess
+then is the translation il gatto e di fronte a rosso coniglio,Guess,Guess
+e in cima al purpe bedde,Guess,Guess
+il gatto is next to the verde tree,Guess,Other
+What is the phrase for under?,Question,Question
+I would say yellow albero?,Question,Guess
+e di fronte alla,Guess,Guess
+e in cima al and yellow table,Guess,Guess
+di fronta coniglio,Question,Guess
+"And how do you say ""is next to the""?",Question,Question
+e sotto il pinkolo tavolo,Guess,Guess
+what is the word for box?,Question,Question
+What is the word for next to?,Question,Question
+il coniglio e di fronte alla,Guess,Guess
+tree is all'albero,Guess,Other
+Thanks. What is plant?,Question,Other
+Il coniglio e sotto all'albero rosso,Guess,Guess
+This is irrelevant to the question implied here.,Question,Other
+ll cane e di fronte al blu coniglio,Guess,Guess
+ il gatto e dietro la blu scatola,Guess,Guess
+What is the word for box?,Question,Question
+"What is ""is next to"" again?",Question,Guess
+What is purple in Italian?,Question,Guess
+what is bag in italian?,Question,Question
+e dietro all'albero blu,Guess,Guess
+It's unclear why you're telling me this.,Other,Guess
+Is it e sotto l'albero pinko?,Guess,Guess
+How do I say bunny,Question,Guess
+I don't remember. How do you say is behind the in Italian?,Question,Other
+il cane e dietro il letto red,Guess,Guess
+e dietro albero blu,Guess,Guess
+e accanto al rosso coniglio,Guess,Guess
+I completely forgot that. So maybe its e di fronte alla scatola giallo.,Guess,Guess
+what is purple in italian?,Question,Question
+what is the color pink again?,Question,Question
+I need help with the word tree,Question,Guess
+oh yeah I remember that,Affirmation,Affirmation
+how do you say purple?,Question,Question
+How do I say is next to the?,Question,Question
+"How do you say ""is in front of""?",Question,Question
+e vicino al rosa letto,Guess,Guess
+and how do I say cat?,Question,Guess
+" Is it ""il coniglio e sotto abero verde?""",Guess,Guess
+what is pink?,Question,Guess
+Is the answer il coniglio e dentro la gialla scatola?,Guess,Guess
+how do you say next?,Question,Question
+"Why the ""di"" appears 3 times?",Question,Other
+so e di fronte alla bocha rosa?,Guess,Guess
+e dentro la box viola,Guess,Guess
+what is the word for purple?,Question,Guess
+il gatto e vicino verde all albero,Guess,Guess
+La palla e dentro la gialla borsa.,Guess,Other
+il gatto e di fronte al viola coniglio,Guess,Guess
+What is Italian for in front of the?,Question,Question
+Could you remind me how to say bed in Italian?,Question,Question
+il cane is under the tavolo gialla.,Guess,Other
+il gatto e vicino al tree blu,Guess,Guess
+il coniglio e di fronte alla scatola,Guess,Guess
+il coniglio e vicino flower pot rosa.,Guess,Guess
+what is the word for is in front of?,Question,Question
+"I'll try this. la pianta è vicino al coniglio rosa.
+",Guess,Other
+la pianta e accanto al rosa cama,Guess,Guess
+e encanta all'boxo viola,Guess,Guess
+Is it e accanto al camo verde?,Guess,Guess
+"and how do you say red?
+",Question,Question
+e sotto il,Affirmation,Guess
+e di fronte rosa albero,Guess,Guess
+Okay! And what's the word for table?,Question,Guess
+Is a bunny masculine or feminine?,Question,Guess
+il gatto al frente de...,Guess,Guess
+can you give me more help?,Question,Guess
+gato e sotto il tavolo yellow,Guess,Guess
+Can you give me an example?,Question,Question
+il cane e dentro de la cama rosa,Guess,Guess
+What is the word for tree?,Question,Question
+what is pink?,Question,Guess
+e in cima al yellow tavolo,Guess,Guess
+il cane e di fronte al tree,Guess,Guess
+il cane is behind the scatola rosa.,Guess,Other
+ il coniglio e dietro il la gato verde,Guess,Guess
+Bagga rossa?,Guess,Guess
+is en vicino next to?,Affirmation,Guess
+is box scatola?,Affirmation,Question
+"How do you say ""bed""?",Question,Question
+"What is the word for on top of?
+",Question,Question
+What is the word for table again?,Question,Guess
+e in cima al ,Guess,Other
+"How do you say ""is next to""?",Question,Guess

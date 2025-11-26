@@ -1,0 +1,137 @@
+{
+  "random_baseline": {
+    "macro_f1": 0.2903383022183039,
+    "macro_precision": 0.29020979020979015,
+    "macro_recall": 0.292887323943662,
+    "per_class": {
+      "Guess": {
+        "precision": 0.5384615384615384,
+        "recall": 0.5915492957746479,
+        "f1": 0.5637583892617449
+      },
+      "Question": {
+        "precision": 0.5454545454545454,
+        "recall": 0.48,
+        "f1": 0.5106382978723404
+      },
+      "Affirmation": {
+        "precision": 0.07692307692307693,
+        "recall": 0.1,
+        "f1": 0.08695652173913043
+      },
+      "Other": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    }
+  },
+  "llama_3.1_405b": {
+    "macro_f1": 0.5239962114899621,
+    "macro_precision": 0.48573055028462997,
+    "macro_recall": 0.6571596244131455,
+    "per_class": {
+      "Guess": {
+        "precision": 0.6266666666666667,
+        "recall": 0.6619718309859155,
+        "f1": 0.6438356164383562
+      },
+      "Question": {
+        "precision": 0.8064516129032258,
+        "recall": 0.6666666666666666,
+        "f1": 0.7299270072992701
+      },
+      "Affirmation": {
+        "precision": 0.17647058823529413,
+        "recall": 0.3,
+        "f1": 0.2222222222222222
+      },
+      "Other": {
+        "precision": 0.3333333333333333,
+        "recall": 1.0,
+        "f1": 0.5
+      }
+    }
+  },
+  "mistral_7b": {
+    "macro_f1": 0.2329329962073325,
+    "macro_precision": 0.16252759381898454,
+    "macro_recall": 0.49333333333333335,
+    "per_class": {
+      "Guess": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "Question": {
+        "precision": 0.48344370860927155,
+        "recall": 0.9733333333333334,
+        "f1": 0.6460176991150443
+      },
+      "Affirmation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "Other": {
+        "precision": 0.16666666666666666,
+        "recall": 1.0,
+        "f1": 0.2857142857142857
+      }
+    }
+  },
+  "llama_3.1_405b_5shot": {
+    "macro_f1": 0.40041586349682307,
+    "macro_precision": 0.5355691056910569,
+    "macro_recall": 0.3696009389671362,
+    "per_class": {
+      "Guess": {
+        "precision": 0.6666666666666666,
+        "recall": 0.8450704225352113,
+        "f1": 0.7453416149068323
+      },
+      "Question": {
+        "precision": 0.975609756097561,
+        "recall": 0.5333333333333333,
+        "f1": 0.6896551724137931
+      },
+      "Affirmation": {
+        "precision": 0.5,
+        "recall": 0.1,
+        "f1": 0.16666666666666666
+      },
+      "Other": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    }
+  },
+  "llama_3.1_405b_full_context": {
+    "macro_f1": 0.737993987552118,
+    "macro_precision": 0.7348000366185394,
+    "macro_recall": 0.7594131455399061,
+    "per_class": {
+      "Guess": {
+        "precision": 0.7283950617283951,
+        "recall": 0.8309859154929577,
+        "f1": 0.7763157894736842
+      },
+      "Question": {
+        "precision": 0.8983050847457628,
+        "recall": 0.7066666666666667,
+        "f1": 0.7910447761194029
+      },
+      "Affirmation": {
+        "precision": 0.3125,
+        "recall": 0.5,
+        "f1": 0.38461538461538464
+      },
+      "Other": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    }
+  }
+}

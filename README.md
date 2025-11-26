@@ -13,6 +13,10 @@
 4. Replication of: [Efficient topic identification for urgent MOOC Forum posts using BERTopic and traditional topic modeling techniques. Education and Information Technologies](https://link.springer.com/content/pdf/10.1007/s10639-024-13003-4.pdf)  
     please see [MOOC_Forum_Topic](MOOC_Forum_Topic/README.md)
 
-4. Replication of :[Second Language Acquisition Modeling](https://aclanthology.org/W18-0506.pdf)
+5. Replication of :[Second Language Acquisition Modeling](https://aclanthology.org/W18-0506.pdf)
 
     please see [SLAM](SLAM/README.md)
+
+6. Replication of :[Prompting as Panacea? A Case Study of In-Context Learning Performance for Qualitative Coding of Classroom Dialog](https://www.educationaldatamining.org/edm2024/proceedings/2024.EDM-posters.95/2024.EDM-posters.95.pdf)
+
+    please see [CIMA](CIMA/README.md)

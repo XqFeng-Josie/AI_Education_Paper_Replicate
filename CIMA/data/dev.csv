@@ -1,0 +1,168 @@
+utterance,studentActions_raw,label
+and how do you day tree?,"['False', 'True', 'False', 'False']",Question
+"Oh, okay is it e di fronte al verde coniglio","['True', 'False', 'False', 'False']",Guess
+la borsa e di fronte alla verde caja,"['False', 'False', 'True', 'False']",Affirmation
+What's bunny? ,"['False', 'True', 'False', 'False']",Question
+"Is it ""il coniglio e sotto verde l'abero?""","['True', 'False', 'False', 'False']",Guess
+what is purple in Italian?,"['False', 'True', 'False', 'False']",Question
+how do you say 'on top of?',"['False', 'True', 'False', 'False']",Question
+what is the word for tree?,"['False', 'True', 'False', 'False']",Question
+what is next to?,"['False', 'True', 'False', 'False']",Question
+e dentro la lapiz borsa,"['True', 'False', 'False', 'False']",Guess
+ il coniglio e dietro il la gatto verde,"['True', 'False', 'False', 'False']",Guess
+what is is behind the in italian,"['False', 'True', 'False', 'False']",Question
+il cane e sotto il tavolo gialla.,"['True', 'False', 'False', 'False']",Guess
+il gatto e vicino al giallo cane?,"['True', 'False', 'False', 'False']",Guess
+rosa,"['True', 'False', 'False', 'False']",Guess
+il gatto e in cima al table blu,"['True', 'False', 'False', 'False']",Guess
+il coniglio e dietro la scatola giala.,"['True', 'False', 'False', 'False']",Guess
+"this is my guess, ""e di fronte al viola coniglio""","['True', 'False', 'False', 'False']",Guess
+How do I say is next to the?,"['False', 'True', 'False', 'False']",Question
+e dentro la scatola amarilla,"['True', 'False', 'False', 'False']",Guess
+"How do you say ""tree""?","['False', 'True', 'False', 'False']",Question
+il coniglio scatola,"['True', 'False', 'False', 'False']",Guess
+la palla e sotto il rosa letto,"['True', 'False', 'False', 'False']",Guess
+How do you say bunny?,"['False', 'True', 'False', 'False']",Question
+What's bunny? ,"['False', 'True', 'False', 'False']",Question
+what is tree?,"['False', 'True', 'False', 'False']",Question
+What's bunny? ,"['False', 'True', 'False', 'False']",Question
+e dentro de la scatola amarilla,"['True', 'False', 'False', 'False']",Guess
+how do you say table? How do you say green?,"['False', 'True', 'False', 'False']",Question
+How do you say tree in Italian?,"['False', 'True', 'False', 'False']",Question
+e di fronte al,"['True', 'False', 'False', 'False']",Guess
+how do I say tree?,"['False', 'True', 'False', 'False']",Question
+what is the word for is inside of?,"['False', 'True', 'False', 'False']",Question
+scatola,"['False', 'False', 'True', 'False']",Affirmation
+La pianta e accanto al congilio giallo.,"['True', 'False', 'False', 'False']",Guess
+undero tavolo,"['True', 'False', 'False', 'False']",Guess
+il coniglio e dentro la blu scatola,"['True', 'False', 'False', 'False']",Guess
+il gatto e vicino all'abero blu.,"['True', 'False', 'False', 'False']",Guess
+ il coniglio e dentro la scatolo la  rosa,"['True', 'False', 'False', 'False']",Guess
+the dog is in front of the coniglio rosa.,"['True', 'False', 'False', 'False']",Guess
+Oh okay! That seems easy enough.,"['False', 'False', 'True', 'False']",Affirmation
+Okay. How would I say is inside of the in Italian?,"['False', 'True', 'False', 'False']",Question
+"How do you say ""is behind""?","['False', 'True', 'False', 'False']",Question
+tavolo,"['False', 'True', 'False', 'False']",Question
+what is the word for blue again?,"['False', 'True', 'False', 'False']",Question
+e dietro il blueo cato,"['True', 'False', 'False', 'False']",Guess
+What is the word for under?,"['False', 'True', 'False', 'False']",Question
+how do you say purse?,"['False', 'True', 'False', 'False']",Question
+how do I say next to again?,"['False', 'True', 'False', 'False']",Question
+Okay! But how do you say green?,"['False', 'True', 'False', 'False']",Question
+il coniglio,"['True', 'False', 'False', 'False']",Guess
+what is the word for is inside of?,"['False', 'True', 'False', 'False']",Question
+what is the word for is under?,"['False', 'True', 'False', 'False']",Question
+I thought next to was e accanto?,"['False', 'True', 'False', 'False']",Question
+What was the Italian word for tree again?,"['False', 'True', 'False', 'False']",Question
+"How do you say ""is next to the""?","['False', 'True', 'False', 'False']",Question
+"il gatto e dentro la letto blu.
+
+ ","['True', 'False', 'False', 'False']",Guess
+I'm not sure how to say pink box. Is it scatola rosa?,"['True', 'False', 'False', 'False']",Guess
+Is it il gatto is next to the red all'albero?,"['True', 'False', 'False', 'False']",Guess
+"I don't know the word for ""tree"" in any Romance language, I don't think. ","['False', 'True', 'False', 'False']",Question
+And what is the word for box?,"['False', 'True', 'False', 'False']",Question
+"how about 
+""il gatto è di fronte al coniglio rosso""","['True', 'False', 'False', 'False']",Guess
+il cane,"['True', 'False', 'False', 'False']",Guess
+es en front de blu tree.,"['True', 'False', 'False', 'False']",Guess
+how do you say in front?,"['False', 'True', 'False', 'False']",Question
+how so I say is inside of?,"['False', 'True', 'False', 'False']",Question
+what is the word for is inside of?,"['False', 'True', 'False', 'False']",Question
+How do you say 'is next to?',"['False', 'True', 'False', 'False']",Question
+il gatto e di fronte al coniglio.,"['False', 'False', 'True', 'False']",Affirmation
+how do you say blue tree?,"['False', 'True', 'False', 'False']",Question
+"Oh yeah, I remember that.","['False', 'False', 'True', 'False']",Affirmation
+what is the word for yellow?,"['False', 'True', 'False', 'False']",Question
+"What is the word for ""red"" in Italian?","['False', 'True', 'False', 'False']",Question
+what is the word for  is in front of?,"['False', 'True', 'False', 'False']",Question
+what is the word for is inside of?,"['False', 'True', 'False', 'False']",Question
+il gatto e vicino all'albero,"['True', 'False', 'False', 'False']",Guess
+la palla e sotto il blu letto,"['True', 'False', 'False', 'False']",Guess
+e dentro la boxo violo,"['True', 'False', 'False', 'False']",Guess
+"Yes, I remember learning that!","['False', 'False', 'True', 'False']",Affirmation
+blueo,"['True', 'False', 'False', 'False']",Guess
+ la scatola e in cima tovolo rosso,"['True', 'False', 'False', 'False']",Guess
+e dentro la lapiz bago,"['True', 'False', 'False', 'False']",Guess
+what is the word for bed again?,"['False', 'True', 'False', 'False']",Question
+e di fronte al coniglio,"['False', 'True', 'False', 'False']",Question
+what is tree in italian,"['False', 'True', 'False', 'False']",Question
+e accanto al mesa viola,"['True', 'False', 'False', 'False']",Guess
+il cane e di di di fronte rosa?,"['False', 'False', 'True', 'False']",Affirmation
+"How do you say ""bunny""?","['False', 'True', 'False', 'False']",Question
+"What is the word for ""blue""?
+","['False', 'True', 'False', 'False']",Question
+Really? That's really simple.,"['False', 'False', 'True', 'False']",Affirmation
+is it ill gatto?,"['True', 'False', 'False', 'False']",Guess
+So e di fronte il scatola,"['True', 'False', 'False', 'False']",Guess
+what is box?,"['False', 'True', 'False', 'False']",Question
+e dietro il,"['True', 'False', 'False', 'False']",Guess
+how do you say in front of the pink bunny?,"['False', 'True', 'False', 'False']",Question
+what is the word for tree?,"['False', 'True', 'False', 'False']",Question
+I know blue is blu.,"['False', 'False', 'True', 'False']",Affirmation
+al dietro al letto viola perhaps?,"['True', 'False', 'False', 'False']",Guess
+blu benno?,"['True', 'False', 'False', 'False']",Guess
+e accanto al arbio purplio,"['True', 'False', 'False', 'False']",Guess
+"il coniglio e dietro il pero
+","['False', 'False', 'True', 'False']",Affirmation
+il cane es en scatola,"['False', 'False', 'True', 'False']",Affirmation
+il gatto e accanto al viola coniglio,"['True', 'False', 'False', 'False']",Guess
+My guess is e dentro la bagga rossa.,"['True', 'False', 'False', 'False']",Guess
+What is the word for tree?,"['False', 'True', 'False', 'False']",Question
+I would say yellow albero?,"['False', 'True', 'False', 'False']",Question
+"is it, il coniglio e di fronte alla penke scatola?","['True', 'False', 'False', 'False']",Guess
+what is the word for pink?,"['False', 'True', 'False', 'False']",Question
+"I believe the Italian word for bed is letto, right?","['False', 'True', 'False', 'False']",Question
+is behind il carne verde,"['True', 'False', 'False', 'False']",Guess
+"So the full sentence is il gatto e vicino rosso all'albero?
+","['False', 'True', 'False', 'False']",Question
+e di fronte verde all'albero?,"['True', 'False', 'False', 'False']",Guess
+How do I say tree in italian?,"['False', 'True', 'False', 'False']",Question
+"What's bunny?
+","['False', 'True', 'False', 'False']",Question
+e accanto al coniglio amarillo,"['True', 'False', 'False', 'False']",Guess
+what is the word for is inside of?,"['False', 'True', 'False', 'False']",Question
+"yes, il cane e dentro la scatola","['False', 'False', 'True', 'False']",Affirmation
+"e inside box viola
+","['True', 'False', 'False', 'False']",Guess
+Okay. I know that part. Now what is purple?,"['False', 'True', 'False', 'False']",Question
+"How do you say ""purple bunny""?","['False', 'True', 'False', 'False']",Question
+Can you help tell me the word for red?,"['False', 'True', 'False', 'False']",Question
+las scatola e in al tovolo rosso,"['True', 'False', 'False', 'False']",Guess
+"so it must be il coniglio e di fronte scatola rosa, right?","['True', 'False', 'False', 'False']",Guess
+il coniglio e di fronte all'albero conglo.,"['True', 'False', 'False', 'False']",Guess
+what is pink cat?,"['False', 'True', 'False', 'False']",Question
+e dentro al bag blu,"['True', 'False', 'False', 'False']",Guess
+e dietro l'albero amarillo,"['True', 'False', 'False', 'False']",Guess
+perhaps it is e di fronte alla scatola verde.,"['True', 'False', 'False', 'False']",Guess
+So is it e in cima al tablo?,"['True', 'False', 'False', 'False']",Guess
+il cane es dieplo letto?,"['True', 'False', 'False', 'False']",Guess
+il cane e all interno della scatola verde,"['True', 'False', 'False', 'False']",Guess
+la borsa e di fronte alla verde caja,"['False', 'False', 'True', 'False']",Affirmation
+How do I saw 'next to'?,"['False', 'True', 'False', 'False']",Question
+ il cane e dietro il viola l'albero,"['True', 'False', 'False', 'False']",Guess
+"So how do you say ""is next to the"" in Italian?","['False', 'True', 'False', 'False']",Question
+The dog is inside of the box.,"['True', 'False', 'False', 'False']",Guess
+e fronte il greene coniglio,"['True', 'False', 'False', 'False']",Guess
+"Oh yeah, I remember now.","['False', 'False', 'True', 'False']",Affirmation
+il gatto,"['True', 'False', 'False', 'False']",Guess
+what is  the purple table?,"['False', 'True', 'False', 'False']",Question
+I know the word gatto from the instructions and giallo from what you taught me before.,"['False', 'False', 'True', 'False']",Affirmation
+il gatto es nexto to il gato pupura.,"['True', 'False', 'False', 'False']",Guess
+How do you say purple again?,"['False', 'True', 'False', 'False']",Question
+"So, letto viola is purple bed?","['False', 'True', 'False', 'False']",Question
+How do you say green?,"['False', 'True', 'False', 'False']",Question
+what is the word for yellow?,"['False', 'True', 'False', 'False']",Question
+"""il gatto e vicino al tree verde""?","['True', 'False', 'False', 'False']",Guess
+il cane e di fronte al coniglio. ,"['True', 'False', 'False', 'False']",Guess
+"e di fronte alla scatola blu?
+","['True', 'False', 'False', 'False']",Guess
+"What is the word for red in Italian?
+","['False', 'True', 'False', 'False']",Question
+La palla e dentro la balsa verde,"['True', 'False', 'False', 'False']",Guess
+al encima tavolo giollo,"['True', 'False', 'False', 'False']",Guess
+la painta el accanto la coniglio,"['True', 'False', 'False', 'False']",Guess
+il coniglio e front il tree verde,"['True', 'False', 'False', 'False']",Guess
+what is table in italian?,"['False', 'True', 'False', 'False']",Question
+allalbero,"['True', 'False', 'False', 'False']",Guess
+coniglio viola,"['True', 'False', 'False', 'False']",Guess
