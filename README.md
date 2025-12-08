@@ -20,3 +20,7 @@
 6. Replication of :[Prompting as Panacea? A Case Study of In-Context Learning Performance for Qualitative Coding of Classroom Dialog](https://www.educationaldatamining.org/edm2024/proceedings/2024.EDM-posters.95/2024.EDM-posters.95.pdf)
 
     please see [CIMA](CIMA/README.md)
+
+8. Replication of :[Cortez, P., & Silva, A. M. G. (2008). Using data mining to predict secondary school student performance. ](https://www.stat.cmu.edu/~brian/valerie/617-2022/617-2021/project01/UCI%20ML%20data%20sets/student%20performance/student.pdf)
+
+    please see [FUBUTEC](FUBUTEC/README.md)

@@ -1,4 +1,4 @@
-# FUBUTEC: Student Performance Prediction (Paper Replication + LLM Augmentation)
+# Student Performance Prediction (Paper Replication + LLM Augmentation)
 
 Replication of Cortez & Silva (2008) "Using data mining to predict secondary school student performance", plus LLM-generated synthetic data for augmentation via OpenRouter.
 
@@ -85,7 +85,7 @@ python main.py --synthetic_data ../data/student-por-synthetic.csv
 
 ### Combined Results (Paper Replication + LLM Augmentation)
 
-| Model | Setup | Task | Paper | Reproduce | Aug Mean |
+| Model | Setup | Task | Paper | Reproduce | LLM-Aug |
 | --- | --- | --- | --- | --- | --- |
 | NV | A | Classification | 89.70 | 89.68 | - |
 | NV | A | Regression (RMSE) | 1.32 | 1.28 | - |
