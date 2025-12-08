@@ -1,0 +1,9 @@
+﻿模型,设置,任务,均值,标准差,数据增强
+"DT (分类, 增强)",Setup A,classification,0.8961,0.0344,是
+"DT (回归, 增强)",Setup A,regression,1.7709,0.4157,是
+"RF (分类, 增强)",Setup A,classification,0.9298,0.0287,是
+"RF (回归, 增强)",Setup A,regression,1.2984,0.3255,是
+"DT (分类, 增强)",Setup C,classification,0.8069,0.0503,是
+"DT (回归, 增强)",Setup C,regression,3.8351,0.4885,是
+"RF (分类, 增强)",Setup C,classification,0.8510,0.0425,是
+"RF (回归, 增强)",Setup C,regression,2.7356,0.3968,是
