@@ -81,26 +81,61 @@ python main.py --synthetic_data ../data/student-por-synthetic.csv
 
 **Outputs**: Results saved to `results/results_augmentation_*.json/csv`.
 
+### 3) Few-shot Prompt (LLM-only)
+
+**Design**:
+- structured student descriptions + Chain-of-Thought guidance.
+- Few-shot examples sampled from the train split (balanced for classification, diverse for regression).
+- Optional self-consistency (multiple samples + voting) and feature-selection to keep prompts concise.
+
+**Tasks**: Setup A/C × classification/regression (single split matching the baseline first fold).
+
+**Outputs**: `results/results_prompt_*.json`, `results/results_prompt_summary_*.csv`, `results/results_prompt_detailed_*.json` (see `llm/llm_prompt/README.md` for usage).
+
+**Current experiment configs (few-shot)**:
+- **Setup A** (10-shot, deterministic CoT, no self-consistency):
+  ```bash
+  cd llm_prompt
+  python main.py --n_examples 10 --random_state 42 --output_cot --no_self_consistency
+  ```
+- **Setup C** (10-shot, no self-consistency):
+  ```bash
+  cd llm_prompt
+  python main.py --n_examples 10 --random_state 42 --no_self_consistency
+  ```
+- **task config** you need to adapt the code in llm/llm_prompt/main.py
+  ```
+  all_task_configs = [
+        {'setup': 'A', 'task': 'classification', 'strategy': 'balanced'},
+        {'setup': 'A', 'task': 'regression', 'strategy': 'diverse'},
+        {'setup': 'C', 'task': 'classification', 'strategy': 'balanced'},
+        {'setup': 'C', 'task': 'regression', 'strategy': 'diverse'},
+    ]
+  ```
+
 ## Results (Analysis)
 
 ### Combined Results (Paper Replication + LLM Augmentation)
 
-| Model | Setup | Task | Paper | Reproduce | LLM-Aug |
-| --- | --- | --- | --- | --- | --- |
-| NV | A | Classification | 89.70 | 89.68 | - |
-| NV | A | Regression (RMSE) | 1.32 | 1.28 | - |
-| DT | A | Classification | 93.00 | 90.09 | 89.61 |
-| DT | A | Regression (RMSE) | 1.46 | 1.81 | 1.77 |
-| RF | A | Classification | 92.60 | 92.74 | 93.04 |
-| RF | A | Regression (RMSE) | 1.32 | 1.28 | 1.30 |
-| NV | C | Classification | 84.60 | 84.59 | - |
-| NV | C | Regression (RMSE) | 3.23 | 3.21 | - |
-| DT | C | Classification | 84.40 | 80.72 | 80.67 |
-| DT | C | Regression (RMSE) | 2.93 | 3.80 | 3.83 |
-| RF | C | Classification | 85.00 | 84.99 | 85.17 |
-| RF | C | Regression (RMSE) | 2.67 | 2.71 | 2.73 |
-
-**Note**: Bold values indicate best performance among Paper/Reproduce/Aug Mean for each row.
+| Model | Setup | Task | Paper | Reproduce | LLM-Aug | LLM-few-prompt |
+| --- | --- | --- | --- | --- | --- | --- |
+| NV | A | Classification | 89.70 | 89.68 | - | - |
+| NV | A | Regression (RMSE) | 1.32 | 1.28 | - | - |
+| DT | A | Classification | 93.00 | 90.09 | 89.61 | - |
+| DT | A | Regression (RMSE) | 1.46 | 1.81 | 1.77 | - |
+| RF | A | Classification | 92.60 | 92.74 | 93.04 | - |
+| RF | A | Regression (RMSE) | 1.32 | 1.28 | 1.30 | - |
+| NV | C | Classification | 84.60 | 84.59 | - | - |
+| NV | C | Regression (RMSE) | 3.23 | 3.21 | - | - |
+| DT | C | Classification | 84.40 | 80.72 | 80.67 | - |
+| DT | C | Regression (RMSE) | 2.93 | 3.80 | 3.83 | - |
+| RF | C | Classification | 85.00 | 84.99 | 85.17 | - |
+| RF | C | Regression (RMSE) | 2.67 | 2.71 | 2.73 | - |
+| LLM-few-shot-cot | A | Classification | - | - | - | 93.85 |
+| LLM-few-shot-cot | A | Regression (RMSE) | - | - | - | 1.25 |
+| LLM-few-shot | C | Classification | - | - | - | 87.69 |
+| LLM-few-shot | C | Regression (RMSE) | - | - | - | 2.80 |
+**Note**: LLM-few-prompt uses 10-shot examples; `cot` includes reasoning plus the final answer choice.
 
 ### Analysis
 
@@ -118,3 +153,8 @@ python main.py --synthetic_data ../data/student-por-synthetic.csv
   - Setup C Classification: 80.72% → 80.67% (-0.05%)
   - Regression tasks show slight improvements in Setup A (1.81 → 1.77) but degradation in Setup C (3.80 → 3.83)
 - **Key Insight**: Random Forest benefits more from augmentation than Decision Tree, likely due to its ensemble nature being more robust to synthetic data variations. The improvement is more pronounced in Setup C (without grades), where additional training data helps compensate for weaker predictive signals.
+
+**LLM Few-shot Prompt (LLM-only)**:
+- **Setup A**: `LLM-few-shot-cot` surpasses all baselines in classification (93.85% vs. RF 93.04%) and matches/bests regression (1.25 RMSE vs. RF 1.30 / NV 1.28), showing that well-crafted CoT prompts can rival supervised models even with access to G1/G2.
+- **Setup C**: `LLM-few-shot` improves classification over RF augmentation (87.69% vs. 85.17%), indicating strong generalization without grade history; regression lags behind the best augmented RF (2.80 vs. 2.73), suggesting CoT prompts help classification more than precise numeric estimation when grades are absent.
+- **Takeaway**: Few-shot CoT prompting is competitive with traditional models, particularly for classification and when auxiliary grades are available; regression without grades remains better served by ensemble models plus real/synthetic tabular data.

@@ -11,7 +11,9 @@ from pathlib import Path
 # Add llm_data_generation module to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from llm_data_generation import OpenRouterClient, StudentDataGenerator, DataValidator
+from llm_client import OpenRouterClient
+from data_generator import StudentDataGenerator
+from data_validator import DataValidator
 
 # Configure logging
 logging.basicConfig(
