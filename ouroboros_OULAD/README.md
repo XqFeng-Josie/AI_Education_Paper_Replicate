@@ -60,43 +60,22 @@ Replication:
 
 | Day | SVM-W-R | SVM-R | LR | LR-W | NB | RF | XGB |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 0 | 0.6319 | 0.5457 | 0.6387 | 0.6304 | 0.2605 | 0.6416 | 0.5514 |
-| 1 | 0.5991 | 0.4658 | 0.5991 | 0.5929 | 0.2531 | 0.6058 | 0.5141 |
-| 2 | 0.5433 | 0.3387 | 0.5567 | 0.5471 | 0.2424 | 0.5588 | 0.4240 |
-| 3 | 0.5113 | 0.3146 | 0.5336 | 0.5214 | 0.2403 | 0.5294 | 0.3627 |
-| 4 | 0.4530 | 0.3135 | 0.5020 | 0.4584 | 0.2361 | 0.5072 | 0.3298 |
-| 5 | 0.4340 | 0.3162 | 0.4990 | 0.4505 | 0.2184 | 0.4767 | 0.3266 |
-| 6 | 0.4138 | 0.2893 | 0.4995 | 0.4329 | 0.2058 | 0.4629 | 0.3098 |
-| 7 | 0.4087 | 0.2552 | 0.4873 | 0.4324 | 0.2033 | 0.4851 | 0.3053 |
-| 8 | 0.3844 | 0.2276 | 0.5186 | 0.4449 | 0.2029 | 0.4918 | 0.3166 |
-| 9 | 0.3544 | 0.2197 | 0.5339 | 0.4242 | 0.1933 | 0.5234 | 0.2861 |
-| 10 | 0.3340 | 0.2206 | 0.5074 | 0.3969 | 0.2136 | 0.5022 | 0.3002 |
-| 11 | 0.3633 | 0.2202 | 0.4786 | 0.3939 | 0.2101 | 0.4518 | 0.2726 |
+| 0 | 0.779198 | 0.750409 | 0.773795 | 0.774563 | 0.554130 | 0.777708 | 0.765853 |
+| 1 | 0.620153 | 0.414209 | 0.614087 | 0.618889 | 0.387025 | 0.625210 | 0.576331 |
+| 2 | 0.547465 | 0.321803 | 0.539832 | 0.535027 | 0.290650 | 0.549151 | 0.418607 |
+| 3 | 0.478614 | 0.267980 | 0.484920 | 0.461042 | 0.266663 | 0.514068 | 0.374788 |
+| 4 | 0.467145 | 0.252747 | 0.486392 | 0.440539 | 0.240311 | 0.495153 | 0.359332 |
+| 5 | 0.436790 | 0.240853 | 0.464914 | 0.428756 | 0.219692 | 0.472223 | 0.310775 |
+| 6 | 0.426464 | 0.217300 | 0.455717 | 0.411028 | 0.206099 | 0.447975 | 0.289286 |
+| 7 | 0.409932 | 0.211095 | 0.450021 | 0.382155 | 0.185611 | 0.433190 | 0.292833 |
+| 8 | 0.419791 | 0.208080 | 0.468553 | 0.381897 | 0.203484 | 0.456371 | 0.307548 |
+| 9 | 0.416853 | 0.211446 | 0.501827 | 0.397380 | 0.204751 | 0.498681 | 0.273601 |
+| 10 | 0.391519 | 0.220202 | 0.485158 | 0.376937 | 0.197703 | 0.478023 | 0.270392 |
+| 11 | 0.368615 | 0.211847 | 0.479871 | 0.359718 | 0.190995 | 0.459813 | 0.254110 |
 
-LLM Multi-Agent System (100 students per module per day):
 
-| Day | PR-AUC | ROC-AUC | F1 | Precision | Recall |
-| --- | --- | --- | --- | --- | --- |
-| 0 | 0.3118 | 0.2597 | 0.6132 | 0.4559 | 0.9521 |
-| 1 | 0.2448 | 0.3502 | 0.4765 | 0.3185 | 0.9592 |
-| 2 | 0.1828 | 0.3358 | 0.3908 | 0.2477 | 0.9490 |
-| 3 | 0.1571 | 0.2793 | 0.3852 | 0.2403 | 1.0000 |
-| 4 | 0.1627 | 0.3305 | 0.3690 | 0.2299 | 0.9711 |
-| 5 | 0.1349 | 0.2875 | 0.3438 | 0.2116 | 0.9737 |
-| 6 | 0.1313 | 0.2741 | 0.3453 | 0.2132 | 0.9616 |
-| 7 | 0.1450 | 0.3408 | 0.3551 | 0.2170 | 1.0000 |
-| 8 | 0.1557 | 0.3295 | 0.3697 | 0.2269 | 1.0000 |
-| 9 | 0.1409 | 0.2566 | 0.3816 | 0.2372 | 0.9762 |
-| 10 | 0.1411 | 0.2488 | 0.3597 | 0.2217 | 0.9545 |
-| 11 | 0.1491 | 0.2897 | 0.3303 | 0.2011 | 0.9475 |
 
-**Notes:**
-- Multi-agent system with 5 specialized agents (Academic Advisor, Behavioral Analyst, Peer Comparator, Time Series Analyst, Decision Maker)
-- Tested on 4 modules (BBB, DDD, EEE, FFF) × 12 time points (day 0-11) = 48 configurations
-- Each day aggregates 400 students (100 per module) from presentation 2014J
-- For implementation details, see [llm/README.md](llm/README.md)
-
-### Figure 6: PR AUC for day 0 to 11 using Self-learning
+<!-- ### Figure 6: PR AUC for day 0 to 11 using Self-learning
 <table>
   <tr>
     <td align="center"><strong>Paper</strong></td>
@@ -118,29 +97,16 @@ LLM Multi-Agent System (100 students per module per day):
     <td><img src="paper/Figure7_PRAUC_legacy_paper.png" alt="Figure 7 — paper" width="100%"></td>
     <td><img src="paper/Figure7_PRAUC_legacy_replicated.png" alt="Figure 7 — replicated" width="100%"></td>
   </tr>
-</table>
+</table> -->
 
 ### Key Findings
 
 #### Traditional ML Methods (Replication)
-- Overall gap vs paper: replication PRAUC is consistently lower across days and models.
-- Strongest replicated baselines: LR and RF are top-performing early (day 0–2), with gradual decline over time; NB is weakest throughout.
-- Class weighting: LR-W and SVM-W-R underperform their unweighted counterparts in replication, suggesting the label skew or weighting scheme may not align with feature distributions.
-- Trend over time: PRAUC generally decreases as the prediction horizon extends (later days), indicating harder early identification with less information.
-- XGB underperformance: XGB trails LR/RF notably; likely sensitive to hyperparameters, feature scaling, or data sparsity in early windows.
-
-#### LLM Multi-Agent System (Initial Results)
-- **PR-AUC Performance**: LLM achieves 0.3118 at day 0, significantly lower than traditional ML methods (best replication: 0.6416 RF, paper best: 0.7790 SVM-W-R), indicating substantial performance gap.
-- **High Recall, Low Precision**: Consistently very high recall (>0.94 across all days), but low precision (0.20-0.46), suggesting the system identifies most at-risk students while generating many false positives.
-- **Temporal Pattern**: 
-  - Overall trend shows performance degradation similar to traditional ML but at lower absolute levels
-- **Class Imbalance Sensitivity**: The model appears overly conservative, favoring "at-risk" predictions to maximize recall at the expense of precision, likely due to prompt design prioritizing false negative avoidance.
-- **Comparison with Traditional ML**: 
-  - LLM PR-AUC is ~50% of best traditional ML on day 0 (0.31 vs 0.64)
-  - Both show temporal degradation, but LLM maintains more consistent recall
-  - LLM F1 scores (0.33-0.61) comparable to or below traditional methods
-
-**Interpretation**: The LLM multi-agent results reveal a conservative risk assessment system that successfully identifies most at-risk students (high recall) but produces excessive false positives (low precision). The consistent high recall across all time points demonstrates the system's ability to detect at-risk patterns, but the low precision indicates it needs refinement to reduce false alarms. Current performance suggests significant room for improvement through: (1) prompt engineering to balance precision-recall tradeoff, (2) calibration methods to adjust risk thresholds, (3) hybrid approaches combining LLM interpretability with traditional ML accuracy, and (4) feature engineering to improve discriminative power.
+- Overall performance: replication results are now much closer to paper values, with day 0 performance nearly matching the paper (SVM-W-R: 0.7792 vs 0.7790, RF: 0.7777 vs 0.7748).
+- Top performers: SVM-W-R and RF consistently lead across all days, with SVM-W-R achieving the highest day 0 PRAUC (0.7792). LR and LR-W also show strong performance, closely following the top models.
+- Class weighting: LR-W slightly outperforms LR on day 0 (0.7746 vs 0.7738) but generally performs similarly or slightly worse on later days, suggesting limited benefit from class weighting in this replication.
+- Trend over time: PRAUC decreases as prediction horizon extends, with most models showing gradual decline from day 0 to day 11. Notable exceptions include LR and RF showing slight recovery on day 9.
+- Model-specific observations: NB remains the weakest performer throughout (0.19-0.55 range). XGB shows strong early performance (0.77 on day 0) but declines more rapidly than other top models, falling to 0.25 by day 11. SVM-R shows the largest gap compared to SVM-W-R, indicating the importance of class weighting for SVM.
 
 
 
