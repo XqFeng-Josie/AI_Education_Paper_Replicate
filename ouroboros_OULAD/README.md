@@ -26,6 +26,8 @@ This creates `selflearner/data_load/data/oulad.h5`
 
 # Experiments
 
+## Traditional ML Experiments
+
 See [notebooks/ouroboros_experiments_new.ipynb](notebooks/ouroboros_experiments_new.ipynb)
 
 Attention:
@@ -34,6 +36,10 @@ Attention:
 3. Describe the experiment/data section clearly.
 4. Report and discuss trends in the results.
 5. Feature construction can be slow; add a progress bar if needed.
+
+## LLM Experiments
+
+See [llm_experiments/README.md](llm_experiments/README.md) for detailed information about LLM-based experiments using the LLM Agent System.
 
 ## Results
 
@@ -108,7 +114,34 @@ Replication:
 - Trend over time: PRAUC decreases as prediction horizon extends, with most models showing gradual decline from day 0 to day 11. Notable exceptions include LR and RF showing slight recovery on day 9.
 - Model-specific observations: NB remains the weakest performer throughout (0.19-0.55 range). XGB shows strong early performance (0.77 on day 0) but declines more rapidly than other top models, falling to 0.25 by day 11. SVM-R shows the largest gap compared to SVM-W-R, indicating the importance of class weighting for SVM.
 
+### LLM Experiments
 
+See [llm_experiments/README.md](llm_experiments/README.md) for detailed experimental design and methodology.
+
+**Summary**: The LLM experiments use a Unified Single-Agent System that integrates multiple analytical perspectives. We follow the same time-window based split rules as traditional ML methods. For current evaluation, we randomly sampled **100 students per course** (BBB, DDD, EEE, FFF), resulting in **400 test samples** per day. The baseline traditional ML methods used the full day-off test dataset (1,945-6,014 samples per day).
+
+#### LLM Results
+
+| Day | N (LLM) | PR-AUC | Baseline N |
+| --- | --- | --- | --- |
+| 0 | 400 | 0.7410 | 1,945 |
+| 1 | 400 | 0.8789 | 3,450 |
+| 2 | 400 | 0.9019 | 4,218 |
+| 3 | 400 | 0.9065 | 4,649 |
+| 4 | 400 | 0.9392 | 4,906 |
+| 5 | 400 | 0.9733 | 5,067 |
+| 6 | 400 | 0.9335 | 5,193 |
+| 7 | 400 | 0.9282 | 5,345 |
+| 8 | 400 | 0.9380 | 5,614 |
+| 9 | 400 | 0.8949 | 5,852 |
+| 10 | 400 | 0.9485 | 5,947 |
+| 11 | 400 | 0.9067 | 6,014 |
+
+#### LLM Findings
+- **Performance trend**: LLM performance shows a different pattern compared to traditional ML methods. PR-AUC starts at 0.7410 on day 0 and increases to peak performance at day 5 (0.9733), then remains consistently high (0.89-0.95 range) through day 11.
+- **Day 5 peak**: The highest PR-AUC of 0.9733 is achieved on day 5, significantly outperforming traditional ML methods at the same day (best traditional ML: 0.4649 for LR).
+- **Consistent high performance**: Unlike traditional ML methods that show declining performance over time, LLM maintains high PR-AUC values (above 0.89) from day 1 through day 11.
+- **Sample size note**: Current results are based on a sample of 400 test cases (100 per course). The baseline traditional ML methods use the full test set, which ranges from 1,945 samples on day 0 to 6,014 samples on day 11.
 
 ## 📊 Dataset Description
 - The original paper used HDF5 data, which is no longer available for download. The latest data is provided as CSV at https://analyse.kmi.open.ac.uk/open-dataset. You can use `convert_csv_to_h5.py` to convert CSV to HDF5 if needed.
