@@ -78,6 +78,19 @@ class ResultStorage:
             return set()
         return set(self.results['student_results'].keys())
     
+    def get_completed_label_distribution(self) -> Dict[int, int]:
+        """Get label distribution of completed students"""
+        if 'student_results' not in self.results:
+            return {}
+        
+        label_counts = {}
+        for idx_str, result in self.results['student_results'].items():
+            true_label = result.get('true_label')
+            if true_label is not None:
+                label_counts[true_label] = label_counts.get(true_label, 0) + 1
+        
+        return label_counts
+    
     def save_student_result(self, student_id: str, index: int, prediction: float, true_label: int,
                            prompt: Optional[str] = None, response: Optional[str] = None):
         """Save result for a single student (thread-safe)"""
@@ -203,6 +216,130 @@ def load_oulad_data(module: str,
     }
 
 
+def balanced_sample_test_data(test_data: pd.DataFrame,
+                               label_column: str,
+                               max_students: int,
+                               random_state: int = 42,
+                               completed_indices: Optional[set] = None,
+                               completed_label_dist: Optional[Dict[int, int]] = None) -> pd.DataFrame:
+    """
+    Balanced sampling from test data, maintaining label distribution as balanced as possible.
+    If completed_indices and completed_label_dist are provided, considers already processed data
+    to maintain overall balance (completed + newly sampled).
+    
+    Args:
+        test_data: Test DataFrame (original indices, before any filtering)
+        label_column: Label column name (e.g., 'submitted')
+        max_students: Maximum number of students to have in total (completed + newly sampled)
+        random_state: Random seed for reproducibility
+        completed_indices: Set of already processed student indices (as strings)
+        completed_label_dist: Label distribution of already processed students {label: count}
+        
+    Returns:
+        Balanced sampled DataFrame (only newly sampled rows, excluding already completed ones)
+    """
+    np.random.seed(random_state)
+    
+    # Convert completed_indices to integers if provided
+    completed_indices_int = set()
+    if completed_indices:
+        completed_indices_int = {int(idx) for idx in completed_indices if idx.isdigit()}
+    
+    # Filter out already completed samples from available test data
+    available_test_data = test_data.drop(index=completed_indices_int, errors='ignore') if completed_indices_int else test_data.copy()
+    
+    # Count completed samples per label
+    completed_counts = completed_label_dist if completed_label_dist else {}
+    total_completed = sum(completed_counts.values()) if completed_counts else 0
+    
+    if total_completed > 0:
+        logger.info(f"Already processed {total_completed} students with label distribution: {completed_counts}")
+    
+    # Calculate how many new samples we need
+    if total_completed >= max_students:
+        logger.info(f"Already have {total_completed} processed students >= max_students ({max_students}), no new sampling needed")
+        # Return empty dataframe with same columns (will be combined with completed in caller)
+        return test_data.iloc[0:0].copy()
+    
+    new_samples_needed = max_students - total_completed
+    
+    if len(available_test_data) <= new_samples_needed:
+        logger.info(f"Available test data ({len(available_test_data)}) <= new samples needed ({new_samples_needed}), using all available")
+        # Return all available data (excluding completed)
+        return available_test_data.copy()
+    
+    # Get unique labels from original test data (to ensure we consider all possible labels)
+    unique_labels = sorted(test_data[label_column].unique())
+    if not unique_labels:
+        logger.warning("No labels found in test data")
+        return test_data.iloc[0:0].copy()
+    
+    # Calculate target distribution for overall (completed + new) to be balanced
+    target_per_label = max_students // len(unique_labels)
+    remainder = max_students % len(unique_labels)
+    
+    # Calculate how many new samples needed per label (compensating for already completed)
+    selected_indices = []
+    
+    logger.info(f"Available test set (excluding {len(completed_indices_int)} completed) label distribution: {available_test_data[label_column].value_counts().to_dict()}")
+    
+    for i, label in enumerate(unique_labels):
+        # Target total for this label (including completed)
+        target_total = target_per_label + (1 if i < remainder else 0)
+        
+        # Already completed for this label
+        already_have = completed_counts.get(label, 0)
+        
+        # How many more we need to sample for this label
+        target_new_samples = max(0, target_total - already_have)
+        
+        # Get available samples with this label
+        label_data = available_test_data[available_test_data[label_column] == label]
+        
+        # If insufficient available samples, use all available
+        n_samples = min(target_new_samples, len(label_data))
+        
+        if n_samples > 0:
+            selected_label_indices = np.random.choice(
+                label_data.index,
+                size=n_samples,
+                replace=False
+            )
+            selected_indices.extend(selected_label_indices)
+            
+            # Log sampling info for this label
+            if n_samples < target_new_samples:
+                logger.info(f"  Label {label}: target total={target_total}, already have={already_have}, need {target_new_samples} more, available {len(label_data)}, sampled {n_samples} (limited by availability)")
+            else:
+                logger.info(f"  Label {label}: target total={target_total}, already have={already_have}, sampled {n_samples} more")
+        elif target_new_samples > 0:
+            logger.info(f"  Label {label}: target total={target_total}, already have={already_have}, need {target_new_samples} more, but no available samples")
+    
+    # Create sampled dataframe (only newly sampled rows)
+    sampled_data = test_data.loc[selected_indices].copy() if selected_indices else test_data.iloc[0:0].copy()
+    
+    # Calculate combined distribution (completed + newly sampled)
+    combined_counts = completed_counts.copy()
+    if len(sampled_data) > 0:
+        new_label_counts = sampled_data[label_column].value_counts().to_dict()
+        for label, count in new_label_counts.items():
+            combined_counts[label] = combined_counts.get(label, 0) + count
+    
+    total_combined = sum(combined_counts.values())
+    
+    # Log the distributions
+    if len(sampled_data) > 0:
+        new_label_counts = sampled_data[label_column].value_counts()
+        logger.info(f"Newly sampled {len(sampled_data)} students with label distribution: {new_label_counts.to_dict()}")
+    
+    if total_combined > 0:
+        logger.info(f"Combined (completed + newly sampled) total: {total_combined} students with distribution: {combined_counts}")
+        combined_props = {label: count / total_combined for label, count in combined_counts.items()}
+        logger.info(f"Combined label proportions: {combined_props}")
+    
+    return sampled_data
+
+
 def run_experiment(llm_wrapper,
                    mode: str = "few_shot",
                    module: str = "BBB",
@@ -269,7 +406,18 @@ def run_experiment(llm_wrapper,
     test_data = data['test_data']
     y_test = data['y_test']
     
-    # 1.5. Create behavior converter if not provided
+    # 1.5. Initialize result storage early to check for completed data (if result_file provided)
+    storage = None
+    completed_indices = set()
+    completed_label_dist = {}
+    if result_file:
+        storage = ResultStorage(result_file)
+        completed_indices = storage.get_completed_indices()
+        if completed_indices:
+            completed_label_dist = storage.get_completed_label_distribution()
+            logger.info(f"Found {len(completed_indices)} already processed students with label distribution: {completed_label_dist}")
+    
+    # 1.6. Create behavior converter if not provided
     if behavior_converter is None:
         logger.info("Creating BehaviorToTextConverter...")
         behavior_converter = BehaviorToTextConverter(
@@ -280,10 +428,29 @@ def run_experiment(llm_wrapper,
         behavior_converter.set_cohort_statistics(train_data)
         logger.info("✓ BehaviorToTextConverter initialized with cohort statistics")
     
-    # Limit test set size if specified
+    # 1.7. Limit test set size if specified (using balanced sampling, considering completed data)
     if max_students and len(test_data) > max_students:
-        logger.info(f"Limiting test set from {len(test_data)} to {max_students} students")
-        test_data = test_data.sample(n=max_students, random_state=random_state)
+        logger.info(f"Balanced sampling test set from {len(test_data)} to {max_students} students (considering {len(completed_indices)} already processed)")
+        # Note: This will exclude already completed indices and sample new ones to maintain balance
+        new_samples = balanced_sample_test_data(
+            test_data=test_data,
+            label_column='submitted',
+            max_students=max_students,
+            random_state=random_state,
+            completed_indices=completed_indices,
+            completed_label_dist=completed_label_dist
+        )
+        
+        # Combine completed indices and newly sampled indices
+        completed_indices_int = {int(idx) for idx in completed_indices if idx.isdigit()}
+        if len(new_samples) > 0:
+            new_indices = set(new_samples.index)
+            all_indices = completed_indices_int | new_indices
+            test_data = test_data.loc[sorted(all_indices)].copy()
+        else:
+            # Only use completed indices if no new samples needed
+            test_data = test_data.loc[sorted(completed_indices_int)].copy()
+        
         y_test = test_data['submitted'].values
     
     # 2. Prepare few-shot examples if needed
@@ -317,12 +484,8 @@ def run_experiment(llm_wrapper,
     if mode == "few_shot" and len(few_shot_examples) > 0:
         agent.set_few_shot_examples(few_shot_examples)
     
-    # 5. Initialize result storage if result_file is provided
-    storage = None
-    completed_indices = set()
-    if result_file:
-        storage = ResultStorage(result_file)
-        completed_indices = storage.get_completed_indices()
+    # 5. Save metadata if storage is initialized
+    if storage:
         if completed_indices:
             logger.info(f"Resuming from checkpoint: {len(completed_indices)}/{len(test_data)} students already processed")
         

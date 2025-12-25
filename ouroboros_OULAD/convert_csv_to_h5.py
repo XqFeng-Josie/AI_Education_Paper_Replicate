@@ -30,6 +30,10 @@ DS_VLE = 'vle'
 
 def download_csv_files():
     """Download the CSV files from the OULAD dataset"""
+
+    download_file = "anonymisedData.zip"
+    if os.path.exists(download_file):
+        return
     url = 'https://analyse.kmi.open.ac.uk/open-dataset/download'
     # anonymisedData.zip
     # wget "https://analyse.kmi.open.ac.uk/open-dataset/download" -O anonymisedData.zip
