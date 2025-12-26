@@ -22,7 +22,7 @@ The experiments follow the **same time-window based split rules** as the traditi
 
 ### Sampling Strategy
 
-For efficient evaluation, we randomly sample **100 students per course** (BBB, DDD, EEE, FFF) from the test set, resulting in **400 test samples** per day. This balanced sampling approach maintains representativeness across all four modules while enabling practical LLM evaluation.
+For current evaluation, we sampled **800 test samples** per day according to the label distribution (balanced ~50/50). This approach ensures a robust evaluation of the model's ability to distinguish between at-risk and non-at-risk students across all four modules (BBB, DDD, EEE, FFF).
 
 **Note**: The baseline traditional ML methods use the full day-off test dataset, which ranges from 1,945 samples (day 0) to 6,014 samples (day 11).
 
@@ -76,7 +76,26 @@ python unified_agent_main.py \
 
 ## Results
 
-Results are saved in JSON format in the `results/` directory, containing:
+Results are saved in JSON format in the `results/` directory.
+
+### Current Performance (800 samples, balanced)
+
+| Day | N | Pos% | PR-AUC | Baseline N |
+| --- | --- | --- | --- | --- |
+| 0 | 800 | 50.0 | 0.6567 | 1,945 |
+| 1 | 800 | 50.0 | 0.7249 | 3,450 |
+| 2 | 800 | 50.0 | 0.7202 | 4,218 |
+| 3 | 800 | 50.0 | 0.7153 | 4,649 |
+| 4 | 800 | 50.0 | 0.7333 | 4,906 |
+| 5 | 800 | 50.1 | 0.7717 | 5,067 |
+| 6 | 800 | 50.0 | 0.7703 | 5,193 |
+| 7 | 800 | 50.0 | 0.7576 | 5,345 |
+| 8 | 800 | 50.0 | 0.7275 | 5,614 |
+| 9 | 800 | 50.0 | 0.7551 | 5,852 |
+| 10 | 800 | 50.0 | 0.6895 | 5,947 |
+| 11 | 800 | 50.0 | 0.6383 | 6,014 |
+
+The results contain:
 - Student predictions and true labels
 - PR-AUC, ROC-AUC, and accuracy metrics
 - Few-shot examples used (if applicable)
